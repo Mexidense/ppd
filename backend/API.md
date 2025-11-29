@@ -81,17 +81,21 @@ Upload a file and create a document record.
 **Content-Type:** `multipart/form-data`
 
 **Form Data:**
+- `title` (required): Title of the document
 - `file` (required): File to upload
 - `cost` (required): Cost of the document (number, >= 0)
+- `address_owner` (optional): Blockchain address of the document owner
 
 **Response:**
 ```json
 {
   "document": {
     "id": "uuid",
+    "title": "My Document",
     "path": "uploads/abc123.pdf",
     "hash": "sha256-hash",
     "cost": 9.99,
+    "address_owner": "0x...",
     "created_at": "2024-01-01T00:00:00Z",
     "updated_at": "2024-01-01T00:00:00Z"
   },
@@ -106,15 +110,19 @@ Upload a file and create a document record.
 **cURL Example:**
 ```bash
 curl -X POST http://localhost:3000/api/documents/upload \
+  -F "title=My Important Document" \
   -F "file=@/path/to/your/document.pdf" \
-  -F "cost=9.99"
+  -F "cost=9.99" \
+  -F "address_owner=0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb"
 ```
 
 **JavaScript Example:**
 ```javascript
 const formData = new FormData();
+formData.append('title', 'My Document');
 formData.append('file', fileInput.files[0]);
 formData.append('cost', '9.99');
+formData.append('address_owner', '0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb');
 
 const response = await fetch('http://localhost:3000/api/documents/upload', {
   method: 'POST',

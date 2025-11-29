@@ -14,6 +14,7 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 // Database types (you can generate these from Supabase CLI later)
 export interface Document {
   id: string;
+  title: string;
   path: string;
   hash: string;
   cost: number;
@@ -27,6 +28,18 @@ export interface Purchase {
   address_buyer: string;
   doc_id: string;
   transaction_id: string;
+  created_at?: string;
+}
+
+export interface Tag {
+  id: string;
+  name: string;
+  created_at?: string;
+}
+
+export interface DocumentTag {
+  document_id: string;
+  tag_id: string;
   created_at?: string;
 }
 

@@ -1,6 +1,7 @@
 -- Create documents table
 CREATE TABLE IF NOT EXISTS documents (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title VARCHAR(255) NOT NULL,
     path VARCHAR(500) NOT NULL,
     hash VARCHAR(255) NOT NULL UNIQUE,
     cost FLOAT NOT NULL CHECK (cost >= 0),
@@ -19,8 +20,9 @@ CREATE INDEX IF NOT EXISTS idx_documents_path ON documents(path);
 CREATE INDEX IF NOT EXISTS idx_documents_address_owner ON documents(address_owner);
 
 -- Add comment to table
-COMMENT ON TABLE documents IS 'Stores document metadata including path, hash, cost, and owner';
+COMMENT ON TABLE documents IS 'Stores document metadata including title, path, hash, cost, and owner';
 COMMENT ON COLUMN documents.id IS 'Unique identifier for the document (UUID)';
+COMMENT ON COLUMN documents.title IS 'Title or name of the document';
 COMMENT ON COLUMN documents.path IS 'File path or location of the document';
 COMMENT ON COLUMN documents.hash IS 'Hash of the document for verification';
 COMMENT ON COLUMN documents.cost IS 'Cost associated with the document';

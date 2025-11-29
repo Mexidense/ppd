@@ -8,20 +8,26 @@ This directory contains the backend configuration and database migrations for th
 backend/
 ├── supabase/
 │   ├── config.ts          # Supabase client configuration
+│   ├── documents.ts       # Document operations
+│   ├── purchases.ts       # Purchase operations
+│   ├── stats.ts           # Statistics operations
+│   ├── tags.ts            # Tag operations
 │   └── migrations/
 │       ├── 001_create_documents_table.sql
-│       └── 002_create_purchases_table.sql
+│       ├── 002_create_purchases_table.sql
+│       └── 003_create_tags_system.sql
 └── README.md
 ```
 
 ## 🗄️ Database Schema
 
 ### Documents Table
-Stores document metadata including path, hash, cost, and owner.
+Stores document metadata including title, path, hash, cost, and owner.
 
 | Column | Type | Description |
 |--------|------|-------------|
 | `id` | UUID | Primary key (auto-generated) |
+| `title` | VARCHAR(255) | Title or name of the document |
 | `path` | VARCHAR(500) | File path or location of the document |
 | `hash` | VARCHAR(255) | Unique hash of the document for verification |
 | `cost` | FLOAT | Cost associated with the document (must be >= 0) |
@@ -54,6 +60,37 @@ Stores purchase records linking buyers to documents via blockchain transactions.
 
 **Relationships:**
 - `doc_id` references `documents(id)` with CASCADE delete
+
+### Tags Table
+Stores available tags for categorizing documents.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | UUID | Primary key (auto-generated) |
+| `name` | VARCHAR(50) | Tag name (must be unique) |
+| `created_at` | TIMESTAMP | Auto-generated timestamp |
+
+**Indexes:**
+- `idx_tags_name` - Fast lookups by tag name
+
+### Document_Tags Table
+Junction table for many-to-many relationship between documents and tags.
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `document_id` | UUID | Foreign key to documents table |
+| `tag_id` | UUID | Foreign key to tags table |
+| `created_at` | TIMESTAMP | Auto-generated timestamp |
+
+**Primary Key:** Composite key (`document_id`, `tag_id`)
+
+**Indexes:**
+- `idx_document_tags_document_id` - Fast lookups by document
+- `idx_document_tags_tag_id` - Fast lookups by tag
+
+**Relationships:**
+- `document_id` references `documents(id)` with CASCADE delete
+- `tag_id` references `tags(id)` with CASCADE delete
 
 ## 🚀 Setup Instructions
 
@@ -98,7 +135,9 @@ There are two ways to run the migrations:
 3. Click "New Query"
 4. Copy the contents of `backend/supabase/migrations/001_create_documents_table.sql`
 5. Paste into the SQL Editor and click "Run"
-6. Repeat steps 3-5 for `002_create_purchases_table.sql`
+6. Repeat steps 3-5 for the following migrations in order:
+   - `002_create_purchases_table.sql`
+   - `003_create_tags_system.sql`
 
 #### Option B: Using Supabase CLI (Advanced)
 

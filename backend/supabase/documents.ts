@@ -4,6 +4,7 @@ import { supabase, Document } from './config';
  * Create a new document
  */
 export async function createDocument(
+  title: string,
   path: string,
   hash: string,
   cost: number,
@@ -12,6 +13,7 @@ export async function createDocument(
   const { data, error } = await supabase
     .from('documents')
     .insert({
+      title,
       path,
       hash,
       cost,

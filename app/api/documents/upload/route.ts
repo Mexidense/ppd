@@ -7,6 +7,7 @@ import { uploadFile } from '@/backend/storage';
  * Upload a file and create a document record
  * 
  * Expected form data:
+ * - title: Title of the document
  * - file: File to upload
  * - cost: Cost of the document (number)
  * - address_owner: (optional) Blockchain address of the document owner
@@ -14,11 +15,19 @@ import { uploadFile } from '@/backend/storage';
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
+    const title = formData.get('title') as string;
     const file = formData.get('file') as File;
     const cost = parseFloat(formData.get('cost') as string);
     const addressOwner = formData.get('address_owner') as string | null;
 
     // Validate inputs
+    if (!title) {
+      return NextResponse.json(
+        { error: 'Title is required' },
+        { status: 400 }
+      );
+    }
+
     if (!file) {
       return NextResponse.json(
         { error: 'File is required' },
@@ -46,6 +55,7 @@ export async function POST(request: NextRequest) {
 
     // Create document record in database
     const { data, error } = await createDocument(
+      title,
       uploadResult.path,
       uploadResult.hash,
       cost,
