@@ -12,18 +12,27 @@ http://localhost:3000/api
 
 ## 📄 Documents Endpoints
 
-### 1. List All Documents
+### 1. List All Documents / Search Documents
 
-Get a list of all documents in the system.
+Get a list of all documents or search by title and/or tags.
 
 **Endpoint:** `GET /api/documents`
 
-**Response:**
+**Query Parameters (all optional):**
+- `title`: Search term for document title (partial match, case-insensitive)
+- `tags`: Comma-separated list of tag names
+
+**Behavior:**
+- **No parameters**: Returns all documents
+- **With parameters**: Returns documents matching the search criteria
+
+**Response (without search params):**
 ```json
 {
   "documents": [
     {
       "id": "uuid",
+      "title": "Document Title",
       "path": "uploads/file.pdf",
       "hash": "sha256-hash",
       "cost": 9.99,
@@ -35,9 +44,64 @@ Get a list of all documents in the system.
 }
 ```
 
-**cURL Example:**
+**Response (with search params):**
+```json
+{
+  "documents": [
+    {
+      "id": "uuid",
+      "title": "React Tutorial for Beginners",
+      "path": "uploads/file.pdf",
+      "hash": "sha256-hash",
+      "cost": 9.99,
+      "address_owner": "0x...",
+      "created_at": "2024-01-01T00:00:00Z",
+      "updated_at": "2024-01-01T00:00:00Z",
+      "tags": [
+        { "id": "tag-uuid-1", "name": "tutorial" },
+        { "id": "tag-uuid-2", "name": "react" },
+        { "id": "tag-uuid-3", "name": "beginner" }
+      ]
+    }
+  ],
+  "count": 1,
+  "filters": {
+    "title": "react",
+    "tags": ["tutorial", "beginner"]
+  }
+}
+```
+
+**cURL Examples:**
 ```bash
+# List all documents
 curl http://localhost:3000/api/documents
+
+# Search by title
+curl "http://localhost:3000/api/documents?title=react"
+
+# Search by tags
+curl "http://localhost:3000/api/documents?tags=tutorial,beginner"
+
+# Search by both
+curl "http://localhost:3000/api/documents?title=react&tags=tutorial,beginner"
+```
+
+**JavaScript Examples:**
+```javascript
+// Get all documents
+const response = await fetch('/api/documents');
+const { documents } = await response.json();
+
+// Search by title
+const response = await fetch('/api/documents?title=react');
+
+// Search by tags
+const tags = ['tutorial', 'beginner'];
+const response = await fetch(`/api/documents?tags=${tags.join(',')}`);
+
+// Combined search
+const response = await fetch('/api/documents?title=react&tags=tutorial');
 ```
 
 ---

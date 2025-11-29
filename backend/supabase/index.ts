@@ -4,4 +4,5 @@ export * from './documents';
 export * from './purchases';
 export * from './stats';
 export * from './tags';
+export * from './search';
 
