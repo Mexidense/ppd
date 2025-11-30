@@ -68,12 +68,14 @@ export function WalletButton() {
       </Button>
       {error && (
         <div 
-          className="flex items-center gap-1 text-xs text-red-500" 
+          className="flex items-center gap-2 rounded-md border border-red-600 bg-red-600/10 px-3 py-1.5 max-w-xs" 
           role="alert"
           aria-label={`Wallet error: ${error}`}
         >
-          <AlertCircle className="h-3 w-3" aria-hidden="true" />
-          <span className="sr-only">{error}</span>
+          <AlertCircle className="h-4 w-4 text-red-500 flex-shrink-0" aria-hidden="true" />
+          <span className="text-xs text-red-500">
+            Desktop wallet not found. <a href="https://github.com/bitcoin-sv/ts-sdk#wallet-client" target="_blank" rel="noopener noreferrer" className="underline hover:text-red-400">Learn more</a>
+          </span>
         </div>
       )}
     </div>

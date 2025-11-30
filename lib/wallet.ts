@@ -14,7 +14,12 @@ export const useWallet = () => {
     setError(null);
     try {
       console.log('Initializing BSV wallet...');
-      const w = new WalletClient("json-api", "localhost");
+      
+      // Use environment variable for wallet host, fallback to localhost
+      const walletHost = process.env.NEXT_PUBLIC_WALLET_HOST || "localhost";
+      console.log('Connecting to wallet at:', walletHost);
+      
+      const w = new WalletClient("json-api", walletHost);
       const identityKeyResult = await w.getPublicKey({ identityKey: true });
       
       console.log('Wallet initialized successfully. Identity key:', identityKeyResult.publicKey?.substring(0, 20) + '...');
@@ -24,14 +29,23 @@ export const useWallet = () => {
       setAddress(identityKeyResult.publicKey);
     } catch (error) {
       console.error('Wallet connection error:', error);
-      setError((error as Error).message || "Failed to connect wallet");
+      const errorMessage = (error as Error).message || "Failed to connect wallet";
+      
+      // Provide helpful error message
+      if (errorMessage.includes('fetch') || errorMessage.includes('NetworkError') || errorMessage.includes('Failed to fetch')) {
+        setError("No BSV wallet found on localhost. Please ensure your wallet is running with JSON-API enabled on port 3321.");
+      } else {
+        setError(errorMessage);
+      }
     } finally {
       setIsConnecting(false);
     }
   }
 
   useEffect(() => {
-    initWallet();
+    // Don't auto-connect on mount - let user click "Connect Wallet"
+    // This prevents errors when no local wallet is running
+    setIsConnecting(false);
   }, []);
 
   const connect = async () => {
