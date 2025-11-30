@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Configure dark mode to use class strategy */
+@variant dark (&:where(.dark, .dark *));
+
 /* Light mode colors - WCAG 2 AA compliant palette */
 :root {
   --background: #f8f9fa;

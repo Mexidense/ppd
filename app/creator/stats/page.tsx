@@ -226,10 +226,10 @@ export default function CreatorStatsPage() {
                 , dailyStats[0]);
                 
                 return (
-                  <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 border border-green-200 dark:border-green-800 rounded-lg p-3 sm:p-4">
-                    <p className="text-xs font-semibold text-green-700 dark:text-green-400 mb-1">BEST DAY</p>
-                    <p className="text-xl sm:text-2xl font-bold text-green-800 dark:text-green-300">{bestDay.date}</p>
-                    <p className="text-xs sm:text-sm text-green-600 dark:text-green-400 mt-1">
+                  <div className="bg-green-500 dark:from-green-900/20 dark:to-green-800/20 dark:bg-gradient-to-br border-2 border-green-700 dark:border-green-800 rounded-lg p-3 sm:p-4 shadow-lg">
+                    <p className="text-xs font-bold text-white dark:text-green-400 mb-1">BEST DAY</p>
+                    <p className="text-xl sm:text-2xl font-bold text-white dark:text-green-300">{bestDay.date}</p>
+                    <p className="text-xs sm:text-sm text-green-50 dark:text-green-400 mt-1 font-semibold">
                       {bestDay.revenue.toLocaleString()} sats • {bestDay.purchases} purchase{bestDay.purchases !== 1 ? 's' : ''}
                     </p>
                   </div>
@@ -237,12 +237,12 @@ export default function CreatorStatsPage() {
               })()}
 
               {/* Total This Week */}
-              <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3 sm:p-4">
-                <p className="text-xs font-semibold text-blue-700 dark:text-blue-400 mb-1">THIS WEEK</p>
-                <p className="text-xl sm:text-2xl font-bold text-blue-800 dark:text-blue-300">
+              <div className="bg-blue-500 dark:from-blue-900/20 dark:to-blue-800/20 dark:bg-gradient-to-br border-2 border-blue-700 dark:border-blue-800 rounded-lg p-3 sm:p-4 shadow-lg">
+                <p className="text-xs font-bold text-white dark:text-blue-400 mb-1">THIS WEEK</p>
+                <p className="text-xl sm:text-2xl font-bold text-white dark:text-blue-300">
                   {dailyStats.reduce((sum, day) => sum + day.purchases, 0)} purchases
                 </p>
-                <p className="text-xs sm:text-sm text-blue-600 dark:text-blue-400 mt-1">
+                <p className="text-xs sm:text-sm text-blue-50 dark:text-blue-400 mt-1 font-semibold">
                   {dailyStats.reduce((sum, day) => sum + day.revenue, 0).toLocaleString()} sats earned
                 </p>
               </div>
@@ -258,10 +258,10 @@ export default function CreatorStatsPage() {
                   : 0;
 
                 return (
-                  <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border border-purple-200 dark:border-purple-800 rounded-lg p-3 sm:p-4">
-                    <p className="text-xs font-semibold text-purple-700 dark:text-purple-400 mb-1">DAILY AVERAGE</p>
-                    <p className="text-xl sm:text-2xl font-bold text-purple-800 dark:text-purple-300">{avgPurchases} purchases</p>
-                    <p className="text-xs sm:text-sm text-purple-600 dark:text-purple-400 mt-1">
+                  <div className="bg-purple-500 dark:from-purple-900/20 dark:to-purple-800/20 dark:bg-gradient-to-br border-2 border-purple-700 dark:border-purple-800 rounded-lg p-3 sm:p-4 shadow-lg">
+                    <p className="text-xs font-bold text-white dark:text-purple-400 mb-1">DAILY AVERAGE</p>
+                    <p className="text-xl sm:text-2xl font-bold text-white dark:text-purple-300">{avgPurchases} purchases</p>
+                    <p className="text-xs sm:text-sm text-purple-50 dark:text-purple-400 mt-1 font-semibold">
                       {avgRevenue.toLocaleString()} sats per day
                     </p>
                   </div>

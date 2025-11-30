@@ -37,15 +37,17 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
       {/* Sidebar */}
       <aside 
         className={cn(
-          "fixed lg:static inset-y-0 left-0 z-50 flex h-screen w-60 flex-col border-r border-border shadow-lg transition-transform duration-300 ease-in-out lg:translate-x-0",
+          "fixed lg:static inset-y-0 left-0 z-50 flex h-screen w-60 flex-col transition-transform duration-300 ease-in-out lg:translate-x-0",
+          "bg-white dark:bg-[#0a0a0a]",
+          "border-r-2 border-r-gray-300 dark:border-r-gray-700",
+          "shadow-xl",
           isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         )}
         role="navigation"
         aria-label="Main navigation"
-        style={{ backgroundColor: '#0a0a0a' }}
       >
       {/* Logo */}
-      <div className="flex h-16 items-center justify-between gap-2 border-b border-border px-6" style={{ backgroundColor: '#1a1a1a' }}>
+      <div className="flex h-16 items-center justify-between gap-2 px-6 bg-gray-50 dark:bg-[#1a1a1a] border-b-2 border-b-gray-200 dark:border-b-gray-700">
         <div className="flex items-center gap-2">
           <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-primary" aria-hidden="true">
             <FileText className="h-5 w-5 text-primary" />
@@ -66,7 +68,7 @@ export function Sidebar({ isOpen = false, onClose }: SidebarProps) {
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto p-4" aria-label="Document sections" style={{ backgroundColor: '#0a0a0a' }}>
+      <nav className="flex-1 overflow-y-auto p-4" aria-label="Document sections">
         {/* Documents Section */}
         <div className="mb-6">
           <h2 className="mb-2 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">

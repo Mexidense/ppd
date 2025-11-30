@@ -280,7 +280,7 @@ export function DocumentCard({
             <Button
               onClick={handlePurchase}
               disabled={loading || !wallet}
-              className="w-full gap-2 sm:gap-3 h-14 sm:h-16 text-base sm:text-lg font-bold bg-gradient-to-br from-primary to-primary/90 text-white border-3 border-primary/30 hover:border-primary hover:from-primary hover:to-primary/80 hover:scale-[1.03] active:scale-[0.97] shadow-[0_4px_16px_rgba(184,150,15,0.5)] hover:shadow-[0_8px_24px_rgba(184,150,15,0.7)] transition-all duration-200 ring-2 ring-primary/20 hover:ring-4 hover:ring-primary/30 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="w-full gap-2 sm:gap-3 h-14 sm:h-16 text-base sm:text-lg font-bold bg-[#b8960f] hover:bg-[#9a7a0c] text-white border-3 border-[#9a7a0c] hover:border-[#7d6309] hover:scale-[1.03] active:scale-[0.97] shadow-lg hover:shadow-xl transition-all duration-200 ring-2 ring-[#b8960f]/30 hover:ring-4 hover:ring-[#b8960f]/50 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               aria-label={`Purchase ${title} for ${formatCurrency(cost)}`}
               aria-disabled={loading || !wallet}
             >
