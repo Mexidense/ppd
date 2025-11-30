@@ -10,7 +10,7 @@ This document summarizes everything that was created for your PPD (Pay-Per-Docum
 
 **SQL Migration Files:**
 - `backend/supabase/migrations/001_create_documents_table.sql`
-  - Documents table with id, path, hash, cost
+  - Documents table with id, path, hash, cost, file_data (BYTEA)
   - Auto-updating timestamps
   - Indexes for performance
   
@@ -25,32 +25,26 @@ This document summarizes everything that was created for your PPD (Pay-Per-Docum
 - `backend/supabase/purchases.ts` - CRUD operations for purchases
 - `backend/supabase/index.ts` - Barrel exports
 
-### 2. File Storage (MinIO/S3)
-
-**Configuration Files:**
-- `docker-compose.yml` - MinIO Docker setup
-- `backend/storage/minio-config.ts` - MinIO client configuration
-- `backend/storage/file-operations.ts` - Upload, download, delete operations
-- `backend/storage/index.ts` - Barrel exports
+### 2. File Storage (Database)
 
 **Features:**
-- Automatic bucket creation
+- Files stored directly in PostgreSQL as BYTEA
 - File hashing (SHA-256)
-- UUID-based file naming
-- Public download URLs
+- Binary file serving through API
+- Secure access control via BSV authentication
 
 ### 3. API Endpoints (Next.js)
 
 **Document Endpoints:**
 - `GET /api/documents` - List all documents
 - `GET /api/documents/[id]` - Get specific document
-- `POST /api/documents/upload` - Upload file + create document
+- `POST /api/documents` - Upload file + create document
+- `GET /api/documents/[id]/view` - View/download document file
+- `POST /api/documents/[id]/purchase` - Purchase document with BSV
 - `DELETE /api/documents/[id]` - Delete document + file
 
 **Purchase Endpoints:**
-- `POST /api/purchases` - Create purchase record
-- `GET /api/purchases` - List all purchases
-- `GET /api/purchases/owner/[address]` - Get purchases by owner
+- `GET /api/purchases/buyer/[address]` - Get purchases by buyer address
 
 **Implementation Files:**
 - `app/api/documents/route.ts`
@@ -64,17 +58,18 @@ This document summarizes everything that was created for your PPD (Pay-Per-Docum
 - `QUICKSTART.md` - 5-minute setup guide
 - `backend/README.md` - Complete backend documentation
 - `backend/API.md` - Detailed API documentation with examples
-- `backend/DOCKER.md` - Docker/MinIO setup and troubleshooting
 - `backend/SETUP.md` - Environment variables guide
+- `frontend/BSV_SDK.md` - BSV blockchain integration guide
 - `backend/test-api.sh` - Automated API testing script
 
 ### 5. Configuration
 
 **Package Dependencies Added:**
 - `@supabase/supabase-js` - Supabase client
-- `minio` - S3-compatible storage client
-- `uuid` - Unique ID generation
-- `crypto-js` - Hashing utilities
+- `@bsv/sdk` - Bitcoin SV blockchain SDK
+- `@bsv/auth-express-middleware` - BSV authentication
+- `@bsv/payment-express-middleware` - BSV payment processing
+- `formidable` - File upload handling
 
 **Environment Variables Template:**
 ```env
@@ -82,13 +77,10 @@ This document summarizes everything that was created for your PPD (Pay-Per-Docum
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
 
-# MinIO
-MINIO_ENDPOINT=localhost
-MINIO_PORT=9000
-MINIO_USE_SSL=false
-MINIO_ACCESS_KEY=minioadmin
-MINIO_SECRET_KEY=minioadmin123
-MINIO_BUCKET_NAME=documents
+# BSV Wallet
+PRIVATE_KEY=your_wallet_private_key_hex
+NETWORK=main
+STORAGE_URL=https://storage.babbage.systems
 ```
 
 ---
@@ -103,6 +95,7 @@ MINIO_BUCKET_NAME=documents
 │  ┌──────────────┐         ┌──────────────┐              │
 │  │   Frontend   │────────▶│  API Routes  │              │
 │  │  (React/UI)  │         │  (REST API)  │              │
+│  │  + BSV SDK   │         │ + BSV Wallet │              │
 │  └──────────────┘         └──────┬───────┘              │
 │                                   │                       │
 └───────────────────────────────────┼───────────────────────┘
@@ -111,12 +104,12 @@ MINIO_BUCKET_NAME=documents
                     │               │               │
                     ▼               ▼               ▼
             ┌──────────────┐ ┌──────────┐ ┌──────────────┐
-            │   Supabase   │ │  MinIO   │ │  Backend     │
-            │  (Database)  │ │ (Storage)│ │  Helpers     │
+            │   Supabase   │ │   BSV    │ │  Backend     │
+            │  (Database)  │ │Blockchain│ │  Helpers     │
             └──────────────┘ └──────────┘ └──────────────┘
-            - documents       - File       - documents.ts
-            - purchases         uploads    - purchases.ts
-                                           - file-ops.ts
+            - documents       - Payments   - documents.ts
+            - purchases       - Auth       - purchases.ts
+            - file_data (BYTEA)            - wallet.ts
 ```
 
 ---
@@ -126,31 +119,33 @@ MINIO_BUCKET_NAME=documents
 ### Document Upload Flow
 
 ```
-1. User uploads file via POST /api/documents/upload
+1. User uploads file via POST /api/documents
    ↓
-2. API receives file + cost
+2. API receives file + cost + owner address
    ↓
 3. Calculate SHA-256 hash
    ↓
-4. Upload file to MinIO (S3)
+4. Store file binary data in Supabase (file_data BYTEA)
    ↓
-5. Create document record in Supabase
+5. Create document record with metadata
    ↓
-6. Return document metadata + upload info
+6. Return document metadata
 ```
 
 ### Purchase Flow
 
 ```
-1. User creates purchase via POST /api/purchases
+1. User initiates purchase via POST /api/documents/[id]/purchase
    ↓
-2. API receives: owner address, doc_id, transaction_id
+2. BSV payment middleware validates payment
    ↓
-3. Verify document exists in Supabase
+3. API receives authenticated payment transaction
    ↓
-4. Create purchase record
+4. Verify document exists and payment is sufficient
    ↓
-5. Return purchase + document info
+5. Create purchase record with blockchain transaction
+   ↓
+6. Return purchase confirmation + access to document
 ```
 
 ---
@@ -161,29 +156,35 @@ MINIO_BUCKET_NAME=documents
 
 1. **Set up Supabase:**
    - Create project at supabase.com
-   - Run SQL migrations
-   - Copy credentials to .env.local
+   - Run SQL migrations in Supabase SQL Editor
+   - Copy credentials to .env
 
-2. **Test the setup:**
+2. **Set up BSV Wallet:**
    ```bash
-   docker-compose up -d
+   npm run setup:wallet
+   ```
+
+3. **Test the setup:**
+   ```bash
    npm run dev
-   cd backend && ./test-api.sh
+   # Open http://localhost:3000
    ```
 
 ### Development Tasks
 
 1. **Frontend:**
-   - Create document upload UI
-   - Display document list
-   - Implement purchase flow
-   - Add wallet connection (MetaMask)
+   - ✅ Document upload UI
+   - ✅ Display document list
+   - ✅ Purchase flow with BSV payments
+   - ✅ BSV wallet connection
+   - ✅ PDF viewer page
 
 2. **Security:**
-   - Add authentication middleware
-   - Implement wallet signature verification
-   - Add rate limiting
-   - Validate file types and sizes
+   - ✅ BSV authentication middleware
+   - ✅ BSV payment middleware
+   - ✅ Wallet signature verification
+   - ✅ File type validation (PDF only)
+   - Add rate limiting (TODO)
 
 3. **Features:**
    - Document preview/thumbnails
@@ -195,10 +196,10 @@ MINIO_BUCKET_NAME=documents
 ### Production Preparation
 
 1. **Infrastructure:**
-   - Replace MinIO with production S3 (AWS, DO Spaces, etc.)
-   - Enable SSL/TLS
-   - Set up CDN for file delivery
-   - Configure backup strategy
+   - Deploy to Vercel or similar platform
+   - Enable SSL/TLS (automatic with Vercel)
+   - Configure Supabase backups
+   - Optimize file serving for large PDFs
 
 2. **Security:**
    - Enable Supabase Row Level Security (RLS)
@@ -217,14 +218,19 @@ MINIO_BUCKET_NAME=documents
 ## 📊 Database Schema
 
 ### documents
-| Column      | Type      | Description                |
-|-------------|-----------|----------------------------|
-| id          | UUID      | Primary key (auto)         |
-| path        | VARCHAR   | S3 file path               |
-| hash        | VARCHAR   | SHA-256 file hash (unique) |
-| cost        | FLOAT     | Document cost (≥ 0)        |
-| created_at  | TIMESTAMP | Auto-generated             |
-| updated_at  | TIMESTAMP | Auto-updated               |
+| Column        | Type      | Description                |
+|---------------|-----------|----------------------------|
+| id            | UUID      | Primary key (auto)         |
+| title         | VARCHAR   | Document title             |
+| path          | VARCHAR   | Optional legacy path       |
+| hash          | VARCHAR   | SHA-256 file hash (unique) |
+| cost          | FLOAT     | Document cost in satoshis  |
+| address_owner | VARCHAR   | Owner's BSV address        |
+| file_data     | BYTEA     | Binary PDF data            |
+| file_size     | INTEGER   | File size in bytes         |
+| mime_type     | VARCHAR   | File MIME type             |
+| created_at    | TIMESTAMP | Auto-generated             |
+| updated_at    | TIMESTAMP | Auto-updated               |
 
 ### purchases
 | Column          | Type      | Description                |
@@ -242,7 +248,7 @@ MINIO_BUCKET_NAME=documents
 ```bash
 # Development
 npm run dev              # Start Next.js dev server
-docker-compose up -d     # Start MinIO
+npm run setup:wallet     # Generate BSV wallet
 
 # Testing
 cd backend && ./test-api.sh  # Test all API endpoints
@@ -250,12 +256,6 @@ cd backend && ./test-api.sh  # Test all API endpoints
 # Production
 npm run build            # Build for production
 npm start                # Start production server
-
-# Docker
-docker-compose ps        # Check container status
-docker-compose logs -f   # View logs
-docker-compose down      # Stop services
-docker-compose down -v   # Stop + remove volumes
 ```
 
 ---
@@ -265,39 +265,58 @@ docker-compose down -v   # Stop + remove volumes
 ```
 ppd/
 ├── app/
-│   ├── api/
-│   │   ├── documents/
-│   │   │   ├── [id]/route.ts       (GET, DELETE)
-│   │   │   ├── route.ts            (GET - list)
-│   │   │   └── upload/route.ts     (POST)
-│   │   └── purchases/
-│   │       ├── owner/[address]/route.ts  (GET)
-│   │       └── route.ts            (POST, GET)
+│   ├── library/page.tsx           # User's library
+│   ├── published/page.tsx         # Published documents
+│   ├── upload/page.tsx            # Upload interface
+│   ├── view/[id]/page.tsx         # PDF viewer
 │   ├── favicon.ico
 │   ├── globals.css
 │   ├── layout.tsx
-│   └── page.tsx
+│   └── page.tsx                   # Main landing page
+│
+├── pages/api/                     # API Routes
+│   ├── documents/
+│   │   ├── [id]/
+│   │   │   ├── index.ts          (GET, DELETE)
+│   │   │   ├── purchase.ts       (POST - BSV payment)
+│   │   │   └── view.ts           (GET - serve file)
+│   │   └── index.ts              (GET list, POST upload)
+│   ├── purchases/
+│   │   └── buyer/[address].ts    (GET by buyer)
+│   └── wallet-info.ts            (GET wallet info)
+│
+├── components/
+│   ├── ui/                       # shadcn/ui components
+│   ├── document-card.tsx
+│   ├── header.tsx
+│   ├── sidebar.tsx
+│   ├── wallet-button.tsx
+│   └── wallet-provider.tsx
 │
 ├── backend/
-│   ├── storage/
-│   │   ├── file-operations.ts
-│   │   ├── index.ts
-│   │   └── minio-config.ts
 │   ├── supabase/
 │   │   ├── migrations/
 │   │   │   ├── 001_create_documents_table.sql
-│   │   │   └── 002_create_purchases_table.sql
+│   │   │   ├── 002_create_purchases_table.sql
+│   │   │   └── 003_create_tags_system.sql
 │   │   ├── config.ts
 │   │   ├── documents.ts
-│   │   ├── index.ts
-│   │   └── purchases.ts
+│   │   ├── document-files.ts
+│   │   ├── purchases.ts
+│   │   ├── stats.ts
+│   │   ├── tags.ts
+│   │   └── search.ts
 │   ├── API.md
-│   ├── DOCKER.md
 │   ├── README.md
 │   ├── SETUP.md
 │   └── test-api.sh
 │
-├── docker-compose.yml
+├── lib/
+│   ├── bsv-utils.ts              # BSV utilities
+│   ├── middleware.ts             # Auth & payment middleware
+│   ├── wallet.ts                 # Frontend wallet
+│   └── wallet-server.ts          # Backend wallet
+│
 ├── package.json
 ├── QUICKSTART.md
 ├── README.md
@@ -309,11 +328,11 @@ ppd/
 ## 🎉 You're Ready to Build!
 
 Your PPD application now has:
-- ✅ Database with proper schema
-- ✅ File storage system
-- ✅ REST API with 7 endpoints
-- ✅ Complete documentation
-- ✅ Testing tools
+- ✅ Database with proper schema and binary file storage
+- ✅ BSV blockchain payment integration
+- ✅ REST API with authentication and payment middleware
+- ✅ Complete frontend with upload, viewing, and purchasing
+- ✅ Comprehensive documentation
 
-**Start coding and have fun!** 🚀
+**Your pay-per-document marketplace is ready!** 🚀
 

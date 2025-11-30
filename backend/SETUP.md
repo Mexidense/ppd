@@ -2,7 +2,7 @@
 
 ## Required Environment Variables
 
-Create a `.env.local` file in the root of your project with the following variables:
+Create a `.env` file in the root of your project with the following variables:
 
 ```env
 # Supabase Configuration
@@ -11,13 +11,10 @@ Create a `.env.local` file in the root of your project with the following variab
 NEXT_PUBLIC_SUPABASE_URL=your-project-url.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
 
-# MinIO Configuration (for local development)
-MINIO_ENDPOINT=localhost
-MINIO_PORT=9000
-MINIO_USE_SSL=false
-MINIO_ACCESS_KEY=minioadmin
-MINIO_SECRET_KEY=minioadmin123
-MINIO_BUCKET_NAME=documents
+# BSV Wallet Configuration
+PRIVATE_KEY=your_wallet_private_key_hex
+NETWORK=main
+STORAGE_URL=https://storage.babbage.systems
 ```
 
 ## How to Get Your Credentials
@@ -32,12 +29,15 @@ MINIO_BUCKET_NAME=documents
    - **Project URL** → Use for `NEXT_PUBLIC_SUPABASE_URL`
    - **anon public** key → Use for `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 
-### MinIO (Local Development)
+### BSV Wallet
 
-The default values above work with the included `docker-compose.yml` file. For production:
-1. Use your production S3-compatible storage credentials
-2. Update `MINIO_ENDPOINT`, `MINIO_ACCESS_KEY`, and `MINIO_SECRET_KEY`
-3. Set `MINIO_USE_SSL=true` for production
+To set up your backend wallet:
 
-⚠️ **Important**: Never commit your `.env.local` file to version control!
+```bash
+npm run setup:wallet
+```
+
+This will generate a new wallet and save the private key to your `.env` file.
+
+⚠️ **Important**: Never commit your `.env` file to version control!
 

@@ -201,7 +201,7 @@ console.log(result);
 
 ### 4. Delete Document
 
-Delete a document and its associated file from storage.
+Delete a document and its file data from the database.
 
 **Endpoint:** `DELETE /api/documents/[id]`
 
@@ -547,17 +547,12 @@ All endpoints may return error responses in the following format:
 
 ### Using cURL
 
-1. **Start MinIO:**
-   ```bash
-   docker-compose up -d
-   ```
-
-2. **Start the development server:**
+1. **Start the development server:**
    ```bash
    npm run dev
    ```
 
-3. **Upload a document:**
+2. **Upload a document:**
    ```bash
    curl -X POST http://localhost:3000/api/documents/upload \
      -F "file=@test.pdf" \
@@ -604,5 +599,5 @@ All endpoints may return error responses in the following format:
 
 - [Next.js API Routes](https://nextjs.org/docs/app/building-your-application/routing/route-handlers)
 - [Supabase JavaScript Client](https://supabase.com/docs/reference/javascript)
-- [MinIO JavaScript SDK](https://min.io/docs/minio/linux/developers/javascript/API.html)
+- [BSV SDK Documentation](https://github.com/bitcoin-sv/ts-sdk)
 

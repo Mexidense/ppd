@@ -1,6 +1,6 @@
 ### PPD: Pay-per-document
 
-A Next.js application for managing pay-per-document transactions using Supabase and MinIO.
+A Next.js application for managing pay-per-document transactions using Supabase and BSV blockchain.
 
 ## ⚡ Quick Start
 
@@ -10,8 +10,8 @@ A Next.js application for managing pay-per-document transactions using Supabase 
 
 ### Prerequisites
 - Node.js 20+
-- Docker Desktop
 - A Supabase account ([sign up here](https://supabase.com))
+- BSV Wallet
 
 ### Installation
 
@@ -22,19 +22,15 @@ A Next.js application for managing pay-per-document transactions using Supabase 
 
 2. **Set up Supabase:**
    - Follow the instructions in [`backend/README.md`](./backend/README.md)
-   - Create your `.env.local` file with credentials (see [`backend/SETUP.md`](./backend/SETUP.md))
+   - Create your `.env` file with credentials (see [`backend/SETUP.md`](./backend/SETUP.md))
+   - Run the database migrations in your Supabase project
 
-3. **Start Docker (MinIO):**
-   ```bash
-   docker-compose up -d
-   ```
-
-4. **Run the development server:**
+3. **Run the development server:**
    ```bash
    npm run dev
    ```
 
-5. Open [http://localhost:3000](http://localhost:3000)
+4. Open [http://localhost:3000](http://localhost:3000)
 
 ## 📁 Project Structure
 
@@ -51,7 +47,6 @@ ppd/
 │   ├── page.tsx      # Home page (all documents)
 │   └── globals.css   # Global styles (dark theme)
 ├── backend/
-│   ├── storage/      # MinIO/S3 configuration
 │   ├── supabase/     # Supabase setup
 │   │   ├── migrations/  # SQL migration files
 │   │   ├── config.ts    # Supabase client
@@ -61,7 +56,6 @@ ppd/
 │   │   ├── tags.ts      # Tag operations
 │   │   └── search.ts    # Search functionality
 │   ├── API.md        # API documentation
-│   ├── DOCKER.md     # Docker/MinIO guide
 │   ├── STATS.md      # Statistics API guide
 │   ├── TAGS.md       # Tags system guide
 │   └── test-api.sh   # API test script
@@ -80,24 +74,19 @@ ppd/
 ├── lib/
 │   ├── utils.ts      # Utility functions
 │   └── bsv-utils.ts  # BSV blockchain utilities
-├── docker-compose.yml   # MinIO setup
 └── QUICKSTART.md     # Quick start guide
 ```
 
-## 🗄️ Database & Storage
+## 🗄️ Database
 
-### Database (Supabase/PostgreSQL)
-- **documents**: Store document metadata (path, hash, cost)
+### Supabase/PostgreSQL
+- **documents**: Store document metadata and file data (BYTEA)
 - **purchases**: Track document purchases with blockchain transactions
+- **tags**: Tag system for document categorization
+
+Files are stored directly in the database as binary data (BYTEA column).
 
 See [`backend/README.md`](./backend/README.md) for detailed database schema.
-
-### File Storage (MinIO)
-- S3-compatible object storage
-- Runs locally via Docker
-- Console UI at [http://localhost:9001](http://localhost:9001)
-
-See [`backend/DOCKER.md`](./backend/DOCKER.md) for MinIO setup and configuration.
 
 ## 🌐 API Endpoints
 
@@ -119,24 +108,15 @@ See [`backend/DOCKER.md`](./backend/DOCKER.md) for MinIO setup and configuration
 
 See [API Documentation](./backend/API.md) for detailed usage and examples.
 
-## 🐳 Local Development with Docker
-
-This project uses MinIO (S3-compatible storage) for file storage:
+## 💻 Local Development
 
 ```bash
-# Start MinIO
-docker-compose up -d
-
-# Access MinIO Console
-open http://localhost:9001
-# Username: minioadmin
-# Password: minioadmin123
-
 # Start Next.js dev server
 npm run dev
-```
 
-See [Docker Setup Guide](./backend/DOCKER.md) for more details.
+# Open browser
+open http://localhost:3000
+```
 
 ## 🎨 Tech Stack
 
@@ -149,10 +129,11 @@ See [Docker Setup Guide](./backend/DOCKER.md) for more details.
 - **Lucide React** - Icons
 
 ### Backend
-- **Supabase** - PostgreSQL database
-- **MinIO** - S3-compatible file storage
+- **Supabase** - PostgreSQL database (including file storage)
 - **Next.js API Routes** - REST API
 - **@bsv/sdk** - Bitcoin SV blockchain integration
+- **@bsv/auth-express-middleware** - BSV authentication
+- **@bsv/payment-express-middleware** - BSV payment processing
 
 ## 📚 Documentation
 
@@ -163,7 +144,6 @@ See [Docker Setup Guide](./backend/DOCKER.md) for more details.
 ### Backend
 - [Backend Setup Guide](./backend/README.md) - Complete guide to setting up Supabase
 - [API Documentation](./backend/API.md) - API endpoints and usage examples
-- [Docker Guide](./backend/DOCKER.md) - MinIO setup and troubleshooting
 - [Statistics API](./backend/STATS.md) - Stats endpoints guide
 - [Tags System](./backend/TAGS.md) - Tag management guide
 - [Search](./backend/SEARCH.md) - Document search guide
@@ -187,9 +167,6 @@ Or manually test with cURL (see [API.md](./backend/API.md) for examples).
 ## 🖥️ Development
 
 ```bash
-# Start MinIO
-docker-compose up -d
-
 # Start Next.js dev server
 npm run dev
 

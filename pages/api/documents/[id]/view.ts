@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getDocumentById } from '../../../../backend/supabase/documents';
 import { checkPurchase } from '../../../../backend/supabase/purchases';
-import { getPresignedUrl } from '../../../../backend/storage/file-operations';
+import { getDocumentFile } from '../../../../backend/supabase/document-files';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'GET') {
@@ -40,14 +40,34 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(403).json({ error: 'Access denied. You must purchase this document first.' });
     }
 
-    // Generate presigned URL for the document (valid for 1 hour)
-    const downloadUrl = await getPresignedUrl(document.path, 3600);
+    // Get the file data from database
+    const { data: fileData, mimeType, error: fileError } = await getDocumentFile(id);
 
-    return res.status(200).json({ 
-      url: downloadUrl,
-      title: document.title,
-      path: document.path
-    });
+    if (fileError) {
+      console.error('Error fetching file from database:', fileError);
+      return res.status(500).json({ error: 'Database error while fetching file', details: fileError.message });
+    }
+
+    if (!fileData) {
+      console.error('File data is null for document:', id);
+      return res.status(404).json({ error: 'File data not found. This document may not have been uploaded correctly.' });
+    }
+
+    if (fileData.length === 0) {
+      console.error('File data is empty for document:', id);
+      return res.status(404).json({ error: 'File data is empty.' });
+    }
+
+    console.log(`Serving file for document ${id}: ${fileData.length} bytes, type: ${mimeType}`);
+
+    // Set headers for PDF display
+    res.setHeader('Content-Type', mimeType);
+    res.setHeader('Content-Length', fileData.length);
+    res.setHeader('Content-Disposition', `inline; filename="${document.title}.pdf"`);
+    res.setHeader('Cache-Control', 'private, max-age=3600');
+
+    // Send the file
+    return res.status(200).send(fileData);
 
   } catch (error: any) {
     console.error('Error in document view API:', error);

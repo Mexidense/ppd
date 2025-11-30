@@ -5,7 +5,18 @@ import { useParams, useRouter } from "next/navigation";
 import { Header } from "@/components/header";
 import { useWallet } from "@/components/wallet-provider";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Download, Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { ArrowLeft, Download, Loader2, FileText, Coins, User } from "lucide-react";
+import { formatCurrency } from "@/lib/utils";
+
+interface DocumentMetadata {
+  id: string;
+  title: string;
+  cost: number;
+  address_owner: string;
+  created_at: string;
+  tags?: Array<{ id: string; name: string }>;
+}
 
 export default function ViewDocumentPage() {
   const params = useParams();
@@ -14,15 +25,17 @@ export default function ViewDocumentPage() {
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [documentTitle, setDocumentTitle] = useState<string>("");
+  const [documentMetadata, setDocumentMetadata] = useState<DocumentMetadata | null>(null);
   const [walletCheckComplete, setWalletCheckComplete] = useState(false);
 
   useEffect(() => {
     // Wait for wallet to finish connecting/checking
+    console.log('Wallet check - isConnecting:', isConnecting);
     if (!isConnecting) {
+      console.log('Wallet check complete - identityKey:', identityKey, 'address:', address);
       setWalletCheckComplete(true);
     }
-  }, [isConnecting]);
+  }, [isConnecting, identityKey, address]);
 
   useEffect(() => {
     if (!walletCheckComplete) {
@@ -33,28 +46,67 @@ export default function ViewDocumentPage() {
       console.log('Wallet state:', { isConnected, isConnecting, identityKey, address });
 
       // Check if wallet is connected
-      if (!isConnected || (!identityKey && !address)) {
+      const walletAddress = identityKey || address;
+      
+      if (!walletAddress) {
+        console.error('No wallet address available');
         setError("wallet_not_connected");
         setLoading(false);
         return;
       }
 
       try {
-        const walletAddress = identityKey || address;
         console.log('Loading document with wallet:', walletAddress);
         
+        // First, fetch document metadata
+        const metadataResponse = await fetch(`/api/documents/${params.id}`);
+        
+        if (!metadataResponse.ok) {
+          const data = await metadataResponse.json();
+          throw new Error(data.error || 'Failed to load document metadata');
+        }
+        
+        const metadataData = await metadataResponse.json();
+        setDocumentMetadata(metadataData.document);
+        console.log('Document metadata loaded:', metadataData.document);
+        
+        // Then fetch the PDF file
         const response = await fetch(`/api/documents/${params.id}/view?buyer=${walletAddress}`);
         
+        console.log('View API response status:', response.status);
+        console.log('View API response content-type:', response.headers.get('content-type'));
+        
         if (!response.ok) {
+          const contentType = response.headers.get('content-type');
+          if (contentType?.includes('application/json')) {
+            const data = await response.json();
+            throw new Error(data.error || `Failed to load document (${response.status})`);
+          } else {
+            throw new Error(`Failed to load document: ${response.status} ${response.statusText}`);
+          }
+        }
+
+        // Check if response is JSON or binary
+        const contentType = response.headers.get('content-type');
+        
+        if (contentType?.includes('application/json')) {
+          // Error response
           const data = await response.json();
           throw new Error(data.error || 'Failed to load document');
         }
-
-        const data = await response.json();
-        console.log('Document loaded:', data);
         
-        setPdfUrl(data.url);
-        setDocumentTitle(data.title || 'Document');
+        // Binary PDF response - create a blob URL
+        const blob = await response.blob();
+        console.log('Received blob:', blob.size, 'bytes, type:', blob.type);
+        
+        if (blob.size === 0) {
+          throw new Error('Received empty file data');
+        }
+        
+        const blobUrl = URL.createObjectURL(blob);
+        console.log('Document PDF loaded as blob URL:', blobUrl);
+        
+        setPdfUrl(blobUrl);
       } catch (err) {
         console.error('Error loading document:', err);
         setError(err instanceof Error ? err.message : 'An error occurred');
@@ -67,10 +119,10 @@ export default function ViewDocumentPage() {
   }, [params.id, walletCheckComplete, isConnected, identityKey, address]);
 
   const handleDownload = () => {
-    if (pdfUrl) {
+    if (pdfUrl && documentMetadata) {
       const link = document.createElement('a');
       link.href = pdfUrl;
-      link.download = `${documentTitle}.pdf`;
+      link.download = `${documentMetadata.title}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -82,30 +134,67 @@ export default function ViewDocumentPage() {
       <Header />
       
       {/* Viewer Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-background">
-        <div className="flex items-center gap-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => router.back()}
-            className="gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Back
-          </Button>
-          <h1 className="text-xl font-semibold">{documentTitle}</h1>
+      <div className="border-b border-border bg-background">
+        <div className="flex items-center justify-between px-6 py-4">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.back()}
+              className="gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </Button>
+            <div className="flex items-center gap-3">
+              <FileText className="h-5 w-5 text-primary" />
+              <h1 className="text-xl font-semibold">{documentMetadata?.title || 'Loading...'}</h1>
+            </div>
+          </div>
+          
+          {pdfUrl && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDownload}
+              className="gap-2"
+            >
+              <Download className="h-4 w-4" />
+              Download
+            </Button>
+          )}
         </div>
         
-        {pdfUrl && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleDownload}
-            className="gap-2"
-          >
-            <Download className="h-4 w-4" />
-            Download
-          </Button>
+        {/* Document Info Bar */}
+        {documentMetadata && (
+          <div className="px-6 py-3 bg-accent/30 border-t border-border">
+            <div className="flex items-center gap-6 text-sm">
+              <div className="flex items-center gap-2">
+                <Coins className="h-4 w-4 text-muted-foreground" />
+                <span className="font-medium">{formatCurrency(documentMetadata.cost)}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <User className="h-4 w-4 text-muted-foreground" />
+                <span className="text-muted-foreground">
+                  Owner: {documentMetadata.address_owner.substring(0, 8)}...{documentMetadata.address_owner.substring(documentMetadata.address_owner.length - 6)}
+                </span>
+              </div>
+              {documentMetadata.tags && documentMetadata.tags.length > 0 && (
+                <div className="flex items-center gap-2">
+                  {documentMetadata.tags.slice(0, 3).map((tag) => (
+                    <Badge key={tag.id} variant="secondary" className="text-xs">
+                      {tag.name}
+                    </Badge>
+                  ))}
+                  {documentMetadata.tags.length > 3 && (
+                    <Badge variant="secondary" className="text-xs">
+                      +{documentMetadata.tags.length - 3}
+                    </Badge>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
         )}
       </div>
 
@@ -128,15 +217,18 @@ export default function ViewDocumentPage() {
               </p>
               <p className="text-muted-foreground mb-4">
                 {error === "wallet_not_connected" 
-                  ? "Please connect your wallet to view this document. Click the wallet button in the top right corner."
+                  ? "Please connect your BSV wallet to view this document. Make sure you have the BSV Wallet extension installed and unlocked."
                   : error}
               </p>
               <div className="flex gap-2 justify-center">
-                <Button onClick={() => router.back()}>
+                <Button onClick={() => window.location.reload()}>
+                  Retry
+                </Button>
+                <Button variant="outline" onClick={() => router.back()}>
                   Go Back
                 </Button>
                 {error === "wallet_not_connected" && (
-                  <Button onClick={() => router.push('/')}>
+                  <Button variant="secondary" onClick={() => router.push('/')}>
                     Go to Home
                   </Button>
                 )}
@@ -148,9 +240,9 @@ export default function ViewDocumentPage() {
         {!loading && !error && pdfUrl && (
           <div className="w-full h-full">
             <iframe
-              src={`${pdfUrl}#toolbar=1&navpanes=1&scrollbar=1`}
+              src={pdfUrl}
               className="w-full h-full border-0"
-              title={documentTitle}
+              title={documentMetadata?.title || 'Document'}
             />
           </div>
         )}

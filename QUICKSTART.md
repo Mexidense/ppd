@@ -20,33 +20,20 @@ npm install
 
 ### Step 3: Configure Environment Variables
 
-Create `.env.local` in the project root:
+Create `.env` in the project root:
 
 ```env
 # Supabase (get from: https://app.supabase.com/project/_/settings/api)
 NEXT_PUBLIC_SUPABASE_URL=your-project-url.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 
-# MinIO (use defaults for local development)
-MINIO_ENDPOINT=localhost
-MINIO_PORT=9000
-MINIO_USE_SSL=false
-MINIO_ACCESS_KEY=minioadmin
-MINIO_SECRET_KEY=minioadmin123
-MINIO_BUCKET_NAME=documents
+# BSV Wallet
+PRIVATE_KEY=your_wallet_private_key_hex
+NETWORK=main
+STORAGE_URL=https://storage.babbage.systems
 ```
 
-### Step 4: Start Docker (MinIO)
-
-```bash
-docker-compose up -d
-```
-
-Verify it's running:
-- MinIO Console: [http://localhost:9001](http://localhost:9001)
-- Login: `minioadmin` / `minioadmin123`
-
-### Step 5: Start Development Server
+### Step 4: Start Development Server
 
 ```bash
 npm run dev
@@ -96,10 +83,10 @@ curl -X POST http://localhost:3000/api/purchases \
 
 ## 📂 What You Just Set Up
 
-✅ **Database**: Supabase PostgreSQL with two tables  
-✅ **Storage**: MinIO (S3-compatible) running in Docker  
-✅ **API**: 7 REST endpoints for documents and purchases  
-✅ **Backend**: Helper functions for database operations  
+✅ **Database**: Supabase PostgreSQL (with file storage in BYTEA columns)  
+✅ **API**: REST endpoints for documents, purchases, and viewing  
+✅ **Backend**: Helper functions for database and BSV operations  
+✅ **BSV Integration**: Blockchain payments and authentication  
 
 ---
 
@@ -129,27 +116,12 @@ curl -X POST http://localhost:3000/api/purchases \
 
 ## 🐛 Troubleshooting
 
-### Docker Issues
-
-**MinIO won't start:**
-```bash
-docker-compose logs minio
-```
-
-**Port already in use:**
-```bash
-# Check what's using port 9000
-lsof -i :9000
-
-# Or change the port in docker-compose.yml
-```
-
 ### Database Issues
 
 **Can't connect to Supabase:**
-- Verify your `.env.local` file exists
+- Verify your `.env` file exists
 - Check credentials in Supabase dashboard
-- Ensure tables are created
+- Ensure tables are created (run migrations)
 
 **Foreign key errors:**
 - Make sure you ran migrations in order
@@ -158,14 +130,14 @@ lsof -i :9000
 ### API Issues
 
 **500 Internal Server Error:**
-- Check if MinIO is running: `docker-compose ps`
 - Verify environment variables are loaded
 - Check console logs: `npm run dev`
+- Ensure Supabase connection is working
 
 **File upload fails:**
-- Ensure MinIO is running
-- Check bucket exists (login to http://localhost:9001)
-- Verify file size (default limit: 4.5MB in Next.js)
+- Check file size limits (default: 10MB in Next.js body parser)
+- Verify the `file_data` column exists in your documents table
+- Check that you've run all migrations
 
 ---
 
@@ -173,28 +145,26 @@ lsof -i :9000
 
 - [Backend Setup](./backend/README.md) - Detailed Supabase setup
 - [API Docs](./backend/API.md) - All endpoints with examples
-- [Docker Guide](./backend/DOCKER.md) - MinIO configuration
 - [Environment Setup](./backend/SETUP.md) - Configuration guide
+- [BSV SDK Guide](./frontend/BSV_SDK.md) - Wallet and blockchain integration
 
 ---
 
 ## 💡 Tips
 
-1. **Use the MinIO Console** ([http://localhost:9001](http://localhost:9001)) to:
-   - Browse uploaded files
-   - Manually upload/download files
-   - View storage usage
-
-2. **Use Supabase Dashboard** to:
-   - View table data
+1. **Use Supabase Dashboard** to:
+   - View table data and uploaded files
    - Run SQL queries
    - Monitor API usage
+   - Check storage usage
+
+2. **Generate a BSV wallet** for the backend:
+   ```bash
+   npm run setup:wallet
+   ```
 
 3. **Check the logs** when something goes wrong:
    ```bash
-   # Docker logs
-   docker-compose logs -f
-   
    # Next.js logs
    # Check terminal where npm run dev is running
    ```
@@ -204,9 +174,10 @@ lsof -i :9000
 ## 🎉 You're All Set!
 
 Your PPD application is now running with:
-- ✅ Database (Supabase)
-- ✅ File Storage (MinIO)
+- ✅ Database with file storage (Supabase)
+- ✅ BSV blockchain integration
 - ✅ REST API (Next.js)
+- ✅ Document upload and viewing
 
-Start building your frontend or test the API endpoints! 🚀
+Start testing the app or explore the codebase! 🚀
 

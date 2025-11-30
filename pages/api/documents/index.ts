@@ -1,9 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getAllDocuments, createDocument } from '../../../backend/supabase/documents';
 import { searchDocuments, SearchFilters } from '../../../backend/supabase/search';
-import { uploadFile } from '../../../backend/storage/file-operations';
 import formidable from 'formidable';
 import fs from 'fs';
+import { createHash } from 'crypto';
 
 export const config = {
   api: {
@@ -94,53 +94,42 @@ async function handleUpload(req: NextApiRequest, res: NextApiResponse) {
     // Read file buffer
     const fileBuffer = fs.readFileSync(file.filepath);
     
-    // Upload to MinIO
-    let uploadResult;
-    try {
-      uploadResult = await uploadFile(
-        fileBuffer,
-        file.originalFilename || 'document.pdf',
-        file.mimetype || 'application/pdf'
-      );
-    } catch (uploadError: any) {
-      // Clean up temporary file
-      try {
-        fs.unlinkSync(file.filepath);
-      } catch (e) {
-        console.error('Failed to delete temp file:', e);
-      }
-      
-      throw new Error(`File upload failed: ${uploadError.message}`);
-    }
-
-    // Create document record in database
+    console.log('File uploaded:', {
+      originalFilename: file.originalFilename,
+      size: fileBuffer.length,
+      mimetype: file.mimetype
+    });
+    
+    // Calculate file hash
+    const hash = createHash('sha256').update(fileBuffer).digest('hex');
+    
+    console.log('File hash calculated:', hash);
+    
+    // Create document record in database with file data
     const { data: document, error: dbError } = await createDocument(
       title,
-      uploadResult.path,
-      uploadResult.hash,
+      fileBuffer,
+      hash,
       parseInt(cost),
-      addressOwner
+      addressOwner,
+      file.mimetype || 'application/pdf'
     );
+    
+    console.log('Document creation result:', { 
+      success: !!document, 
+      error: dbError,
+      documentId: document?.id 
+    });
+
+    // Clean up temporary file
+    try {
+      fs.unlinkSync(file.filepath);
+    } catch (e) {
+      console.error('Failed to delete temp file:', e);
+    }
 
     if (dbError || !document) {
-      // Database record creation failed - clean up the uploaded file
-      console.error('Database error, cleaning up uploaded file:', dbError);
-      
-      try {
-        const { deleteFile } = await import('../../../backend/storage/file-operations');
-        await deleteFile(uploadResult.path);
-        console.log('Successfully cleaned up uploaded file');
-      } catch (cleanupError) {
-        console.error('Failed to cleanup uploaded file:', cleanupError);
-      }
-      
-      // Clean up temporary file
-      try {
-        fs.unlinkSync(file.filepath);
-      } catch (e) {
-        console.error('Failed to delete temp file:', e);
-      }
-      
+      console.error('Database error:', dbError);
       return res.status(500).json({ 
         error: 'Failed to create document record', 
         details: dbError 
@@ -150,19 +139,15 @@ async function handleUpload(req: NextApiRequest, res: NextApiResponse) {
     // If tags are provided, we could add them here
     // (requires tag creation logic which seems to exist in backend/supabase/tags.ts)
 
-    // Clean up temporary file
-    try {
-      fs.unlinkSync(file.filepath);
-    } catch (e) {
-      console.error('Failed to delete temp file:', e);
-    }
-
     return res.status(201).json({
       message: 'Document uploaded successfully',
       document: {
-        ...document,
-        fileSize: uploadResult.size,
-        fileName: uploadResult.fileName
+        id: document.id,
+        title: document.title,
+        cost: document.cost,
+        hash: document.hash,
+        file_size: fileBuffer.length,
+        created_at: document.created_at
       }
     });
 

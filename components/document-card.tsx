@@ -166,14 +166,19 @@ export function DocumentCard({
       const data = await response.json();
 
       if (response.ok) {
-        showMessage(`Purchase successful! ${data.amountPaid} sats paid.`, 'success');
+        showMessage(`Purchase successful! ${data.amountPaid} sats paid. Reloading...`, 'success');
+        
+        // Reload the page after a short delay to show the success message
+        setTimeout(() => {
+          window.location.reload();
+        }, 1500);
       } else {
         showMessage(data.error || 'Purchase failed', 'error');
+        setLoading(false);
       }
     } catch (error: any) {
       console.error('Purchase error:', error);
       showMessage('Error: ' + error.message, 'error');
-    } finally {
       setLoading(false);
     }
   };

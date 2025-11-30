@@ -15,10 +15,12 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 export interface Document {
   id: string;
   title: string;
-  path: string;
   hash: string;
   cost: number;
   address_owner?: string;
+  file_data?: Buffer | Uint8Array; // Binary file data stored in database
+  file_size?: number;
+  mime_type?: string;
   created_at?: string;
   updated_at?: string;
 }

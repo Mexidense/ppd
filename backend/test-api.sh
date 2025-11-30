@@ -78,15 +78,15 @@ if [ "$DOC_ID" != "null" ] && [ "$DOC_ID" != "" ]; then
     fi
 else
     echo -e "${RED}✗ Failed to upload document. Make sure:${NC}"
-    echo "  1. Docker is running (docker-compose up -d)"
-    echo "  2. Next.js dev server is running (npm run dev)"
-    echo "  3. Environment variables are set in .env.local"
+    echo "  1. Next.js dev server is running (npm run dev)"
+    echo "  2. Environment variables are set in .env"
+    echo "  3. Supabase is configured correctly"
 fi
 
 echo ""
 echo "${GREEN}✓ API testing complete!${NC}"
 echo ""
 echo "Next steps:"
-echo "  - Check MinIO Console: http://localhost:9001"
+echo "  - Open the app: http://localhost:3000"
 echo "  - View API docs: backend/API.md"
 
