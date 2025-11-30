@@ -5,7 +5,7 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDate, formatCurrency } from "@/lib/utils";
-import { ShoppingCart, Loader2 } from "lucide-react";
+import { ShoppingCart, Loader2, Eye } from "lucide-react";
 import { useWallet } from "@/lib/wallet";
 import { P2PKH, PublicKey, Utils, WalletProtocol } from "@bsv/sdk";
 
@@ -18,6 +18,8 @@ export interface DocumentCardProps {
   description?: string;
   tags?: Array<{ id: string; name: string }>;
   created_at: string;
+  isOwned?: boolean;
+  isPurchased?: boolean;
 }
 
 export function DocumentCard({
@@ -27,6 +29,8 @@ export function DocumentCard({
   description,
   tags = [],
   created_at,
+  isOwned = false,
+  isPurchased = false,
 }: DocumentCardProps) {
   const { wallet, identityKey } = useWallet();
   const [loading, setLoading] = useState(false);
@@ -46,9 +50,34 @@ export function DocumentCard({
     setTimeout(() => setMessage(''), 5000);
   };
 
+  const handleViewDocument = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (!wallet || !identityKey) {
+      showMessage('Please connect your wallet first', 'error');
+      return;
+    }
+
+    console.log('Navigating to viewer with wallet:', identityKey);
+
+    // Navigate to the viewer page
+    window.location.href = `/view/${id}`;
+  };
+
   const handlePurchase = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (isOwned) {
+      showMessage('You own this document', 'info');
+      return;
+    }
+
+    if (isPurchased) {
+      showMessage('You already purchased this document', 'info');
+      return;
+    }
 
     if (!wallet || !identityKey) {
       showMessage('Please connect your wallet first', 'error');
@@ -150,9 +179,28 @@ export function DocumentCard({
   };
 
   return (
-    <Card className="group h-full transition-all hover:border-primary/50 hover:shadow-lg flex flex-col">
+    <Card className={`group h-full transition-all hover:border-primary/50 hover:shadow-lg flex flex-col ${
+      isOwned ? 'border-green-500/50 bg-green-500/5' : 
+      isPurchased ? 'border-blue-500/50 bg-blue-500/5' : ''
+    }`}>
       <CardContent className="p-6 flex-1">
         <div className="space-y-4">
+          {/* Status Badges */}
+          {(isOwned || isPurchased) && (
+            <div className="flex gap-2 mb-2">
+              {isOwned && (
+                <Badge className="bg-green-600 hover:bg-green-700">
+                  Owner
+                </Badge>
+              )}
+              {isPurchased && !isOwned && (
+                <Badge className="bg-blue-600 hover:bg-blue-700">
+                  Purchased
+                </Badge>
+              )}
+            </div>
+          )}
+
           {/* Title */}
           <h3 className="text-xl font-semibold leading-tight text-foreground group-hover:text-primary transition-colors">
             {title}
@@ -187,23 +235,43 @@ export function DocumentCard({
           </p>
 
           {/* CTA Button */}
-          <Button
-            onClick={handlePurchase}
-            disabled={loading || !wallet}
-            className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Processing...
-              </>
-            ) : (
-              <>
-                <ShoppingCart className="h-4 w-4" />
-                Purchase Document
-              </>
-            )}
-          </Button>
+          {(isOwned || isPurchased) ? (
+            <Button
+              onClick={handleViewDocument}
+              disabled={loading}
+              className="w-full gap-2 bg-green-600 text-white hover:bg-green-700"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Opening...
+                </>
+              ) : (
+                <>
+                  <Eye className="h-4 w-4" />
+                  View Document
+                </>
+              )}
+            </Button>
+          ) : (
+            <Button
+              onClick={handlePurchase}
+              disabled={loading || !wallet}
+              className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+            >
+              {loading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  <ShoppingCart className="h-4 w-4" />
+                  Purchase Document
+                </>
+              )}
+            </Button>
+          )}
 
           {/* Message Display */}
           {message && (

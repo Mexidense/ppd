@@ -3,17 +3,23 @@
 import { useEffect, useState } from "react";
 import { Header } from "@/components/header";
 import { DocumentCard, DocumentCardProps } from "@/components/document-card";
+import { useWallet } from "@/components/wallet-provider";
 
 export default function LibraryPage() {
+  const { identityKey, address, isConnected } = useWallet();
   const [documents, setDocuments] = useState<DocumentCardProps[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchMyDocuments() {
+      if (!isConnected || (!identityKey && !address)) {
+        setLoading(false);
+        return;
+      }
+
       try {
-        // TODO: Replace with actual wallet address from Web3 context
-        const walletAddress = "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb";
+        const walletAddress = identityKey || address;
         
         const response = await fetch(`/api/purchases/buyer/${walletAddress}`);
         if (!response.ok) {
@@ -21,13 +27,14 @@ export default function LibraryPage() {
         }
         const data = await response.json();
         
-        // Extract documents from purchases
+        // Extract documents from purchases and mark them as purchased
         const purchasedDocs = (data.purchases || []).map((purchase: any) => ({
           id: purchase.documents?.id,
           title: purchase.documents?.title,
           cost: purchase.documents?.cost,
           tags: [], // Tags not included in purchase response
           created_at: purchase.created_at,
+          isPurchased: true, // Mark as purchased so they can view it
         }));
         
         setDocuments(purchasedDocs);
@@ -39,7 +46,7 @@ export default function LibraryPage() {
     }
 
     fetchMyDocuments();
-  }, []);
+  }, [isConnected, identityKey, address]);
 
   return (
     <div className="flex flex-col h-full">
@@ -51,7 +58,18 @@ export default function LibraryPage() {
           <p className="text-muted-foreground">Documents you've purchased</p>
         </div>
 
-        {loading && (
+        {!isConnected && !loading && (
+          <div className="flex h-full items-center justify-center">
+            <div className="text-center">
+              <p className="text-xl text-muted-foreground">Wallet not connected</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Please connect your wallet to view your library
+              </p>
+            </div>
+          </div>
+        )}
+
+        {loading && isConnected && (
           <div className="flex h-full items-center justify-center">
             <div className="text-center">
               <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
