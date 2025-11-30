@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useWallet } from "@/components/wallet-provider";
+import { useTheme } from "@/components/theme-provider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TrendingUp, DollarSign, ShoppingCart, FileText, Loader2 } from "lucide-react";
 import {
@@ -33,6 +34,7 @@ interface DocumentPerformance {
 
 export default function CreatorStatsPage() {
   const { identityKey, address, isConnected } = useWallet();
+  const { theme } = useTheme();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
@@ -88,6 +90,10 @@ export default function CreatorStatsPage() {
 
     fetchStats();
   }, [isConnected, identityKey, address]);
+
+  // Theme-aware colors for charts
+  const axisColor = theme === 'dark' ? '#fafafa' : '#1e293b';
+  const gridColor = theme === 'dark' ? '#374151' : '#cbd5e1';
 
   if (!isConnected) {
     return (
@@ -366,14 +372,14 @@ export default function CreatorStatsPage() {
                       />
                       <XAxis 
                         dataKey="date" 
-                        tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-                        tickLine={{ stroke: 'hsl(var(--border))' }}
-                        axisLine={{ stroke: 'hsl(var(--border))' }}
+                        tick={{ fill: axisColor, fontSize: 12 }}
+                        tickLine={{ stroke: gridColor }}
+                        axisLine={{ stroke: gridColor }}
                       />
                       <YAxis 
-                        tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-                        tickLine={{ stroke: 'hsl(var(--border))' }}
-                        axisLine={{ stroke: 'hsl(var(--border))' }}
+                        tick={{ fill: axisColor, fontSize: 12 }}
+                        tickLine={{ stroke: gridColor }}
+                        axisLine={{ stroke: gridColor }}
                         allowDecimals={false}
                       />
                       <Tooltip 
@@ -451,19 +457,19 @@ export default function CreatorStatsPage() {
                       </defs>
                       <CartesianGrid 
                         strokeDasharray="3 3" 
-                        stroke="hsl(var(--border))"
+                        stroke={gridColor}
                         opacity={0.3}
                       />
                       <XAxis 
                         dataKey="date" 
-                        tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-                        tickLine={{ stroke: 'hsl(var(--border))' }}
-                        axisLine={{ stroke: 'hsl(var(--border))' }}
+                        tick={{ fill: axisColor, fontSize: 12 }}
+                        tickLine={{ stroke: gridColor }}
+                        axisLine={{ stroke: gridColor }}
                       />
                       <YAxis 
-                        tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 12 }}
-                        tickLine={{ stroke: 'hsl(var(--border))' }}
-                        axisLine={{ stroke: 'hsl(var(--border))' }}
+                        tick={{ fill: axisColor, fontSize: 12 }}
+                        tickLine={{ stroke: gridColor }}
+                        axisLine={{ stroke: gridColor }}
                         tickFormatter={(value) => {
                           if (value >= 1000000) return `${(value / 1000000).toFixed(1)}M`;
                           if (value >= 1000) return `${(value / 1000).toFixed(1)}K`;
