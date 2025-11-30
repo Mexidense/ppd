@@ -25,7 +25,6 @@ export function DocumentCard({
   id,
   title,
   cost,
-  description,
   tags = [],
   created_at,
   isOwned = false,
@@ -35,13 +34,6 @@ export function DocumentCard({
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'success' | 'error' | 'info'>('info');
-
-  // Truncate description to ~100 characters
-  const truncatedDescription = description
-    ? description.length > 100
-      ? description.substring(0, 100) + "..."
-      : description
-    : "Descripción del documento medio explicativa sobre de que trata la cosa...";
 
   const showMessage = (text: string, type: 'success' | 'error' | 'info') => {
     setMessage(text);
@@ -215,10 +207,16 @@ export function DocumentCard({
           </h2>
 
           {/* Price and Tags */}
-          <div className="flex items-center gap-3">
-            <span className="text-lg font-semibold text-foreground">
-              {formatCurrency(cost)}
-            </span>
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <span className="text-2xl font-bold text-foreground">
+                {formatCurrency(cost)}
+              </span>
+              <span className="text-sm text-muted-foreground">
+                ≈ {(cost / 100000000).toFixed(6)} BSV
+              </span>
+            </div>
+            
             {tags.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {tags.slice(0, 3).map((tag) => (
@@ -237,27 +235,22 @@ export function DocumentCard({
             )}
           </div>
 
-          {/* Description */}
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            {truncatedDescription}
-          </p>
-
           {/* CTA Button */}
           {(isOwned || isPurchased) ? (
             <Button
               onClick={handleViewDocument}
               disabled={loading}
-              className="w-full gap-2 bg-green-600 text-white hover:bg-green-700"
+              className="w-full gap-2 h-14 text-lg font-bold bg-gradient-to-br from-green-600 to-green-700 text-white border-2 border-green-800 hover:from-green-700 hover:to-green-800 hover:border-green-900 hover:scale-[1.02] active:scale-[0.98] shadow-[0_4px_12px_rgba(22,163,74,0.4)] hover:shadow-[0_6px_20px_rgba(22,163,74,0.6)] transition-all duration-200 ring-2 ring-green-600/20"
               aria-label={`View ${title}`}
             >
               {loading ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
                   <span>Opening...</span>
                 </>
               ) : (
                 <>
-                  <Eye className="h-4 w-4" aria-hidden="true" />
+                  <Eye className="h-5 w-5" aria-hidden="true" />
                   <span>View Document</span>
                 </>
               )}
@@ -266,19 +259,19 @@ export function DocumentCard({
             <Button
               onClick={handlePurchase}
               disabled={loading || !wallet}
-              className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+              className="w-full gap-3 h-16 text-lg font-bold bg-gradient-to-br from-primary to-primary/90 text-white border-3 border-primary/30 hover:border-primary hover:from-primary hover:to-primary/80 hover:scale-[1.03] active:scale-[0.97] shadow-[0_4px_16px_rgba(184,150,15,0.5)] hover:shadow-[0_8px_24px_rgba(184,150,15,0.7)] transition-all duration-200 ring-2 ring-primary/20 hover:ring-4 hover:ring-primary/30 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               aria-label={`Purchase ${title} for ${formatCurrency(cost)}`}
               aria-disabled={loading || !wallet}
             >
               {loading ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  <Loader2 className="h-6 w-6 animate-spin" aria-hidden="true" />
                   <span>Processing...</span>
                 </>
               ) : (
                 <>
-                  <ShoppingCart className="h-4 w-4" aria-hidden="true" />
-                  <span>Purchase Document</span>
+                  <ShoppingCart className="h-6 w-6" aria-hidden="true" />
+                  <span>Purchase Now</span>
                 </>
               )}
             </Button>
@@ -302,8 +295,8 @@ export function DocumentCard({
       </div>
 
       <footer className="bg-muted/50 border-t border-border p-4 text-center">
-        <p className="w-full text-xs font-medium text-muted-foreground">
-          Posted <time dateTime={created_at}>{formatDate(created_at)}</time>
+        <p className="w-full text-sm font-medium text-muted-foreground">
+          <span className="font-normal">Published:</span> <time dateTime={created_at}>{formatDate(created_at)}</time>
         </p>
       </footer>
     </article>

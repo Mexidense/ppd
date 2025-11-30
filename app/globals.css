@@ -247,6 +247,31 @@ input[type="submit"],
   min-width: 44px;
 }
 
+/* Enhanced button styles for better UX */
+button:not(:disabled),
+[role="button"]:not([aria-disabled="true"]) {
+  cursor: pointer;
+}
+
+button:disabled,
+[role="button"][aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Gradient button enhancement */
+.bg-gradient-to-r,
+.bg-gradient-to-br {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Add depth to buttons */
+button {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
 /* Better text selection */
 ::selection {
   background-color: var(--primary);
