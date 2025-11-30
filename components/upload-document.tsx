@@ -205,11 +205,11 @@ export function UploadDocument() {
 
   return (
     <Card className="border-2 shadow-lg">
-      <CardContent className="p-8">
-        <form onSubmit={handleSubmit} className="space-y-6" aria-label="Upload document form">
+      <CardContent className="p-4 sm:p-6 lg:p-8">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5 lg:space-y-6" aria-label="Upload document form">
           {/* Title */}
           <div>
-            <label htmlFor="title" className="block text-sm font-medium mb-2">
+            <label htmlFor="title" className="block text-xs sm:text-sm font-medium mb-2">
               Title <span aria-label="required">*</span>
             </label>
             <input
@@ -220,7 +220,7 @@ export function UploadDocument() {
               onChange={(e) => setTitle(e.target.value)}
               disabled={loading}
               placeholder="Enter document title"
-              className="block w-full px-3 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+              className="block w-full px-3 py-2 text-sm sm:text-base border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring dark:bg-gray-800 dark:border-gray-700 dark:text-white"
               required
               aria-required="true"
               aria-describedby="title-help"
@@ -230,7 +230,7 @@ export function UploadDocument() {
 
           {/* File Upload - Enhanced */}
           <div>
-            <label htmlFor="file-input" className="block text-sm font-medium mb-3">
+            <label htmlFor="file-input" className="block text-xs sm:text-sm font-medium mb-2 sm:mb-3">
               PDF File <span aria-label="required">*</span>
             </label>
             
@@ -250,7 +250,7 @@ export function UploadDocument() {
               />
               <label
                 htmlFor="file-input"
-                className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-all ${
+                className={`flex flex-col items-center justify-center w-full h-28 sm:h-32 border-2 border-dashed rounded-lg cursor-pointer transition-all ${
                   file 
                     ? 'border-green-500 bg-green-500/10 hover:bg-green-500/20' 
                     : 'border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700'
@@ -260,12 +260,12 @@ export function UploadDocument() {
                 aria-label={file ? `Selected file: ${file.name}. Click to change` : "Upload PDF file"}
               >
                 {file ? (
-                  <div className="flex flex-col items-center gap-2">
-                    <div className="flex items-center justify-center w-12 h-12 rounded-full bg-green-500" aria-hidden="true">
-                      <FileCheck className="h-6 w-6 text-white" />
+                  <div className="flex flex-col items-center gap-2 px-4">
+                    <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-green-500" aria-hidden="true">
+                      <FileCheck className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
                     </div>
                     <div className="text-center">
-                      <p className="text-sm font-medium text-green-600 dark:text-green-400">
+                      <p className="text-xs sm:text-sm font-medium text-green-600 dark:text-green-400 truncate max-w-full">
                         {file.name}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
@@ -274,12 +274,12 @@ export function UploadDocument() {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center gap-2">
-                    <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10" aria-hidden="true">
-                      <Upload className="h-6 w-6 text-primary" />
+                  <div className="flex flex-col items-center gap-2 px-4">
+                    <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary/10" aria-hidden="true">
+                      <Upload className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
                     </div>
                     <div className="text-center">
-                      <p className="text-sm font-medium text-foreground">
+                      <p className="text-xs sm:text-sm font-medium text-foreground">
                         Click to upload or drag and drop
                       </p>
                       <p className="text-xs text-muted-foreground mt-1">
@@ -295,7 +295,7 @@ export function UploadDocument() {
 
           {/* Cost */}
           <div>
-            <label htmlFor="cost" className="block text-sm font-medium mb-2">
+            <label htmlFor="cost" className="block text-xs sm:text-sm font-medium mb-2">
               Cost (Satoshis) <span aria-label="required">*</span>
             </label>
             <input
@@ -308,14 +308,14 @@ export function UploadDocument() {
               placeholder="1000"
               min="0"
               step="1"
-              className="block w-full px-3 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+              className="block w-full px-3 py-2 text-sm sm:text-base border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring dark:bg-gray-800 dark:border-gray-700 dark:text-white"
               required
               aria-required="true"
               aria-describedby="cost-help cost-conversion"
             />
             <span id="cost-help" className="sr-only">Enter the cost in satoshis for accessing this document</span>
             {cost && (
-              <p id="cost-conversion" className="mt-1 text-sm text-gray-600 dark:text-gray-400" aria-live="polite">
+              <p id="cost-conversion" className="mt-1 text-xs sm:text-sm text-gray-600 dark:text-gray-400" aria-live="polite">
                 ≈ {(parseInt(cost) / 100000000).toFixed(8)} BSV
               </p>
             )}
@@ -323,22 +323,22 @@ export function UploadDocument() {
 
           {/* Tags */}
           <div>
-            <label htmlFor="tags" className="block text-sm font-medium mb-2">
+            <label htmlFor="tags" className="block text-xs sm:text-sm font-medium mb-2">
               Tags (Optional)
             </label>
             
             {/* Tag Input Box with Selected Tags Inside */}
             <div 
-              className="min-h-[100px] p-3 border border-input rounded-lg bg-gray-50 dark:bg-gray-800 transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-ring"
+              className="min-h-[80px] sm:min-h-[100px] p-2 sm:p-3 border border-input rounded-lg bg-gray-50 dark:bg-gray-800 transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-ring"
               role="group"
               aria-label="Document tags"
             >
               {/* Selected Tags as Boxes with Different Colors */}
-              <div className="flex flex-wrap gap-2 mb-2" role="list" aria-label="Selected tags">
+              <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-2" role="list" aria-label="Selected tags">
                 {selectedTags.map((tag, index) => (
                   <div
                     key={tag}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 ${getTagColor(tag, index)} text-white rounded-md text-sm font-medium shadow-sm transition-all`}
+                    className={`inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 ${getTagColor(tag, index)} text-white rounded-md text-xs sm:text-sm font-medium shadow-sm transition-all`}
                     role="listitem"
                   >
                     <span>{tag}</span>
@@ -349,7 +349,7 @@ export function UploadDocument() {
                       disabled={loading}
                       aria-label={`Remove tag ${tag}`}
                     >
-                      <X className="h-3.5 w-3.5" aria-hidden="true" />
+                      <X className="h-3 w-3 sm:h-3.5 sm:w-3.5" aria-hidden="true" />
                     </button>
                   </div>
                 ))}
@@ -364,7 +364,7 @@ export function UploadDocument() {
                   onKeyPress={handleTagKeyPress}
                   disabled={loading}
                   placeholder={selectedTags.length === 0 ? "Type a tag and press Enter..." : "Add another tag..."}
-                  className="flex-1 min-w-[150px] px-2 py-1 bg-transparent border-none focus:outline-none text-sm dark:text-white"
+                  className="flex-1 min-w-[120px] sm:min-w-[150px] px-2 py-1 bg-transparent border-none focus:outline-none text-xs sm:text-sm dark:text-white"
                   aria-describedby="tags-help"
                 />
               </div>
@@ -373,9 +373,9 @@ export function UploadDocument() {
 
             {/* Available Tags (Quick Select) */}
             {availableTags.length > 0 && (
-              <div className="mt-3">
+              <div className="mt-2 sm:mt-3">
                 <p className="text-xs text-muted-foreground mb-2" id="suggested-tags-label">Suggested tags (click to add):</p>
-                <div className="flex flex-wrap gap-2" role="list" aria-labelledby="suggested-tags-label">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2" role="list" aria-labelledby="suggested-tags-label">
                   {availableTags
                     .filter(tag => !selectedTags.includes(tag.name))
                     .slice(0, 10)
@@ -385,7 +385,7 @@ export function UploadDocument() {
                         type="button"
                         onClick={() => handleAddTag(tag.name)}
                         disabled={loading}
-                        className="px-3 py-1 text-xs font-medium border border-input rounded-md hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors disabled:opacity-50"
+                        className="px-2 sm:px-3 py-1 text-xs font-medium border border-input rounded-md hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors disabled:opacity-50"
                         aria-label={`Add tag ${tag.name}`}
                       >
                         {tag.name}
@@ -397,42 +397,42 @@ export function UploadDocument() {
           </div>
 
           {/* Owner Info */}
-          <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-border" role="status" aria-label="Owner information">
-            <p className="text-sm font-medium mb-1 text-foreground">Owner Address:</p>
+          <div className="p-3 sm:p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-border" role="status" aria-label="Owner information">
+            <p className="text-xs sm:text-sm font-medium mb-1 text-foreground">Owner Address:</p>
             <p className="text-xs text-muted-foreground font-mono break-all">
               {identityKey || address || 'Not connected'}
             </p>
           </div>
 
           {/* Submit Button - Enhanced UX */}
-          <div className="pt-4">
+          <div className="pt-2 sm:pt-4">
             <Button
               type="submit"
               disabled={loading || !file || !title || !cost}
-              className="w-full h-16 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 bg-gradient-to-r from-primary to-primary/80 hover:from-primary hover:to-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-14 sm:h-16 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 bg-gradient-to-r from-primary to-primary/80 hover:from-primary hover:to-primary disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label={loading ? "Uploading document, please wait" : "Submit form to publish document"}
               aria-disabled={loading || !file || !title || !cost}
             >
               {loading ? (
                 <>
-                  <Loader2 className="mr-2 h-6 w-6 animate-spin" aria-hidden="true" />
+                  <Loader2 className="mr-2 h-5 w-5 sm:h-6 sm:w-6 animate-spin" aria-hidden="true" />
                   <span>Uploading Document...</span>
                 </>
               ) : file ? (
                 <>
-                  <FileCheck className="mr-2 h-6 w-6" aria-hidden="true" />
+                  <FileCheck className="mr-2 h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
                   <span>Publish Document</span>
                 </>
               ) : (
                 <>
-                  <Upload className="mr-2 h-6 w-6" aria-hidden="true" />
+                  <Upload className="mr-2 h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
                   <span>Upload Document</span>
                 </>
               )}
             </Button>
             
             {/* Helper Text with Icons */}
-            <div className="mt-3 p-3 rounded-lg bg-muted/30" role="status" aria-live="polite">
+            <div className="mt-2 sm:mt-3 p-2 sm:p-3 rounded-lg bg-muted/30" role="status" aria-live="polite">
               <p className="text-xs text-center text-muted-foreground">
                 {!file && !title && 'Please fill in all required fields to continue'}
                 {file && title && cost && !loading && 'Ready to publish! Click the button above to upload'}

@@ -46,6 +46,7 @@ npm install
 backend/supabase/migrations/001_create_documents_table.sql
 backend/supabase/migrations/002_create_purchases_table.sql
 backend/supabase/migrations/003_create_tags_system.sql
+backend/supabase/migrations/004_create_row_level_security.sql
 ```
 
 ### 3. Environment Variables

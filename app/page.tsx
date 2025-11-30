@@ -87,21 +87,21 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-4 sm:p-6 lg:p-8">
         {/* Page Header */}
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold">Documents</h1>
-          <p className="text-sm text-muted-foreground mt-1">
+        <header className="mb-6 lg:mb-8">
+          <h1 className="text-2xl sm:text-3xl font-bold">Documents</h1>
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
             Browse, purchase, and manage your document collection
           </p>
         </header>
 
         {/* Tabs Navigation */}
-        <nav className="mb-8" aria-label="Document filters" role="tablist">
-          <div className="flex gap-2" role="tablist">
+        <nav className="mb-6 lg:mb-8" aria-label="Document filters" role="tablist">
+          <div className="flex gap-1 sm:gap-2 overflow-x-auto" role="tablist">
             <button
               onClick={() => setFilter('all')}
-              className={`px-6 py-3.5 font-semibold text-sm transition-all rounded-t-lg relative ${
+              className={`px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-3.5 font-semibold text-xs sm:text-sm transition-all rounded-t-lg relative whitespace-nowrap ${
                 filter === 'all'
                   ? 'text-primary-foreground bg-gradient-to-br from-primary via-primary to-primary/90 border-2 border-b-0 border-primary shadow-[0_-4px_12px_rgba(0,0,0,0.15),0_8px_16px_rgba(var(--primary-rgb),0.4)] z-10'
                   : 'text-muted-foreground hover:text-foreground bg-muted/30 border-2 border-transparent hover:border-border/50 hover:bg-muted/50 hover:shadow-md'
@@ -111,9 +111,10 @@ export default function HomePage() {
               aria-controls="marketplace-panel"
               id="marketplace-tab"
             >
-              <div className="flex items-center gap-2">
-                <span>🏪 Marketplace</span>
-                <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span className="hidden sm:inline">🏪 Marketplace</span>
+                <span className="sm:hidden">🏪 Market</span>
+                <span className={`px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-xs font-bold ${
                   filter === 'all' 
                     ? 'bg-white/40 text-primary-foreground shadow-sm' 
                     : 'bg-muted text-muted-foreground'
@@ -126,7 +127,7 @@ export default function HomePage() {
             {isConnected && (
               <button
                 onClick={() => setFilter('purchased')}
-                className={`px-6 py-3.5 font-semibold text-sm transition-all rounded-t-lg relative ${
+                className={`px-3 sm:px-4 lg:px-6 py-2.5 sm:py-3 lg:py-3.5 font-semibold text-xs sm:text-sm transition-all rounded-t-lg relative whitespace-nowrap ${
                   filter === 'purchased'
                     ? 'text-primary-foreground bg-gradient-to-br from-primary via-primary to-primary/90 border-2 border-b-0 border-primary shadow-[0_-4px_12px_rgba(0,0,0,0.15),0_8px_16px_rgba(var(--primary-rgb),0.4)] z-10'
                     : 'text-muted-foreground hover:text-foreground bg-muted/30 border-2 border-transparent hover:border-border/50 hover:bg-muted/50 hover:shadow-md'
@@ -136,9 +137,10 @@ export default function HomePage() {
                 aria-controls="library-panel"
                 id="library-tab"
               >
-                <div className="flex items-center gap-2">
-                  <span>📚 My Library</span>
-                  <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <span className="hidden sm:inline">📚 My Library</span>
+                  <span className="sm:hidden">📚 Library</span>
+                  <span className={`px-1.5 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-xs font-bold ${
                     filter === 'purchased' 
                       ? 'bg-white/40 text-primary-foreground shadow-sm' 
                       : 'bg-muted text-muted-foreground'
@@ -152,29 +154,29 @@ export default function HomePage() {
           
           {/* Content Area with Border */}
           <section 
-            className="border-2 border-primary rounded-lg rounded-tl-none p-6 bg-background shadow-[0_4px_20px_rgba(0,0,0,0.1)]"
+            className="border-2 border-primary rounded-lg rounded-tl-none p-3 sm:p-4 lg:p-6 bg-background shadow-[0_4px_20px_rgba(0,0,0,0.1)]"
             role="tabpanel"
             id={filter === 'all' ? 'marketplace-panel' : 'library-panel'}
             aria-labelledby={filter === 'all' ? 'marketplace-tab' : 'library-tab'}
           >
             {/* Tab Content Description */}
             {filter === 'all' && (
-              <div className="mb-4">
-                <p className="text-sm text-muted-foreground">
+              <div className="mb-3 sm:mb-4">
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   📖 Browse all available documents • Purchase to unlock and view
                 </p>
               </div>
             )}
             {filter === 'purchased' && isConnected && (
-              <div className="mb-4">
-                <p className="text-sm text-muted-foreground">
+              <div className="mb-3 sm:mb-4">
+                <p className="text-xs sm:text-sm text-muted-foreground">
                   ✅ Documents you own or have purchased • Ready to view anytime
                 </p>
               </div>
             )}
             
             {/* Content */}
-            <div className="-mx-6 -mb-6 px-6 pb-6">
+            <div className="-mx-3 sm:-mx-4 lg:-mx-6 -mb-3 sm:-mb-4 lg:-mb-6 px-3 sm:px-4 lg:px-6 pb-3 sm:pb-4 lg:pb-6">
 
         {loading && (
           <div className="flex h-full items-center justify-center" role="status" aria-live="polite">
@@ -229,7 +231,7 @@ export default function HomePage() {
         )}
 
         {!loading && !error && filteredDocuments.length > 0 && (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" role="list">
+          <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 lg:gap-6 xl:grid-cols-3" role="list">
             {filteredDocuments.map((doc) => (
               <DocumentCard 
                 key={doc.id} 

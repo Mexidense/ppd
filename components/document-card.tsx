@@ -204,18 +204,18 @@ export function DocumentCard({
       }`}
       aria-label={`Document: ${title}`}
     >
-      <div className="p-6 flex-1">
-        <div className="space-y-4">
+      <div className="p-4 sm:p-5 lg:p-6 flex-1">
+        <div className="space-y-3 sm:space-y-4">
           {/* Status Badges */}
           {(isOwned || isPurchased) && (
             <div className="flex gap-2 mb-2" role="status" aria-live="polite">
               {isOwned && (
-                <Badge className="bg-green-600 hover:bg-green-700 text-white border-0" aria-label="You own this document">
+                <Badge className="bg-green-600 hover:bg-green-700 text-white border-0 text-xs" aria-label="You own this document">
                   Owner
                 </Badge>
               )}
               {isPurchased && !isOwned && (
-                <Badge className="bg-blue-600 hover:bg-blue-700 text-white border-0" aria-label="You purchased this document">
+                <Badge className="bg-blue-600 hover:bg-blue-700 text-white border-0 text-xs" aria-label="You purchased this document">
                   Purchased
                 </Badge>
               )}
@@ -223,17 +223,17 @@ export function DocumentCard({
           )}
 
           {/* Title */}
-          <h2 className="text-xl font-semibold leading-tight text-foreground group-hover:text-primary transition-colors">
+          <h2 className="text-lg sm:text-xl font-semibold leading-tight text-foreground group-hover:text-primary transition-colors">
             {title}
           </h2>
 
           {/* Price and Tags */}
-          <div className="flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <span className="text-2xl font-bold text-foreground">
+          <div className="flex flex-col gap-2 sm:gap-3">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <span className="text-xl sm:text-2xl font-bold text-foreground">
                 {formatCurrency(cost)}
               </span>
-              <span className="text-sm text-muted-foreground">
+              <span className="text-xs sm:text-sm text-muted-foreground">
                 ≈ {(cost / 100000000).toFixed(6)} BSV
               </span>
             </div>
@@ -261,17 +261,17 @@ export function DocumentCard({
             <Button
               onClick={handleViewDocument}
               disabled={loading}
-              className="w-full gap-2 h-14 text-lg font-bold bg-gradient-to-br from-green-600 to-green-700 text-white border-2 border-green-800 hover:from-green-700 hover:to-green-800 hover:border-green-900 hover:scale-[1.02] active:scale-[0.98] shadow-[0_4px_12px_rgba(22,163,74,0.4)] hover:shadow-[0_6px_20px_rgba(22,163,74,0.6)] transition-all duration-200 ring-2 ring-green-600/20"
+              className="w-full gap-1.5 sm:gap-2 h-12 sm:h-14 text-base sm:text-lg font-bold bg-gradient-to-br from-green-600 to-green-700 text-white border-2 border-green-800 hover:from-green-700 hover:to-green-800 hover:border-green-900 hover:scale-[1.02] active:scale-[0.98] shadow-[0_4px_12px_rgba(22,163,74,0.4)] hover:shadow-[0_6px_20px_rgba(22,163,74,0.6)] transition-all duration-200 ring-2 ring-green-600/20"
               aria-label={`View ${title}`}
             >
               {loading ? (
                 <>
-                  <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
+                  <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" aria-hidden="true" />
                   <span>Opening...</span>
                 </>
               ) : (
                 <>
-                  <Eye className="h-5 w-5" aria-hidden="true" />
+                  <Eye className="h-4 w-4 sm:h-5 sm:w-5" aria-hidden="true" />
                   <span>View Document</span>
                 </>
               )}
@@ -280,18 +280,18 @@ export function DocumentCard({
             <Button
               onClick={handlePurchase}
               disabled={loading || !wallet}
-              className="w-full gap-3 h-16 text-lg font-bold bg-gradient-to-br from-primary to-primary/90 text-white border-3 border-primary/30 hover:border-primary hover:from-primary hover:to-primary/80 hover:scale-[1.03] active:scale-[0.97] shadow-[0_4px_16px_rgba(184,150,15,0.5)] hover:shadow-[0_8px_24px_rgba(184,150,15,0.7)] transition-all duration-200 ring-2 ring-primary/20 hover:ring-4 hover:ring-primary/30 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="w-full gap-2 sm:gap-3 h-14 sm:h-16 text-base sm:text-lg font-bold bg-gradient-to-br from-primary to-primary/90 text-white border-3 border-primary/30 hover:border-primary hover:from-primary hover:to-primary/80 hover:scale-[1.03] active:scale-[0.97] shadow-[0_4px_16px_rgba(184,150,15,0.5)] hover:shadow-[0_8px_24px_rgba(184,150,15,0.7)] transition-all duration-200 ring-2 ring-primary/20 hover:ring-4 hover:ring-primary/30 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               aria-label={`Purchase ${title} for ${formatCurrency(cost)}`}
               aria-disabled={loading || !wallet}
             >
               {loading ? (
                 <>
-                  <Loader2 className="h-6 w-6 animate-spin" aria-hidden="true" />
+                  <Loader2 className="h-5 w-5 sm:h-6 sm:w-6 animate-spin" aria-hidden="true" />
                   <span>Processing...</span>
                 </>
               ) : (
                 <>
-                  <ShoppingCart className="h-6 w-6" aria-hidden="true" />
+                  <ShoppingCart className="h-5 w-5 sm:h-6 sm:w-6" aria-hidden="true" />
                   <span>Purchase Now</span>
                 </>
               )}
@@ -315,9 +315,9 @@ export function DocumentCard({
         </div>
       </div>
 
-      <footer className="bg-muted/50 border-t border-border p-4">
-        <div className="flex flex-col gap-2">
-          <p className="w-full text-sm font-medium text-muted-foreground text-center">
+      <footer className="bg-muted/50 border-t border-border p-3 sm:p-4">
+        <div className="flex flex-col gap-1.5 sm:gap-2">
+          <p className="w-full text-xs sm:text-sm font-medium text-muted-foreground text-center">
             <span className="font-normal">Published:</span> <time dateTime={created_at}>{formatDate(created_at)}</time>
           </p>
           
@@ -326,14 +326,14 @@ export function DocumentCard({
             <>
               {/* Purchase Date */}
               {purchaseDate && (
-                <p className="w-full text-sm font-medium text-green-600 dark:text-green-400 text-center">
+                <p className="w-full text-xs sm:text-sm font-medium text-green-600 dark:text-green-400 text-center">
                   <span className="font-normal">Purchased:</span> <time dateTime={purchaseDate}>{formatDate(purchaseDate)}</time>
                 </p>
               )}
               
               {/* Transaction ID link */}
               {transactionId && (
-                <div className="flex items-center justify-center gap-2 text-xs">
+                <div className="flex items-center justify-center gap-1.5 sm:gap-2 text-xs">
                   <span className="text-muted-foreground">Transaction:</span>
                   <a
                     href={`https://whatsonchain.com/tx/${transactionId}`}

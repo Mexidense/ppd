@@ -127,41 +127,41 @@ export default function PublishedPage() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 p-8">
-        <div className="mb-8 flex items-center justify-between">
+      <div className="flex-1 p-4 sm:p-6 lg:p-8">
+        <div className="mb-6 lg:mb-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-3xl font-bold">Published Documents</h2>
-            <p className="mt-1 text-muted-foreground">
+            <h2 className="text-2xl sm:text-3xl font-bold">Published Documents</h2>
+            <p className="mt-1 text-xs sm:text-sm text-muted-foreground">
               Manage and track your uploaded content
             </p>
           </div>
           <Button 
             size="lg"
-            className="gap-2 bg-gradient-to-r from-primary to-primary/80 shadow-lg hover:shadow-xl transition-all"
+            className="gap-2 bg-gradient-to-r from-primary to-primary/80 shadow-lg hover:shadow-xl transition-all w-full sm:w-auto"
             onClick={() => router.push('/upload')}
             disabled={!isConnected}
           >
-            <Upload className="h-5 w-5" />
-            Upload New Document
+            <Upload className="h-4 w-4 sm:h-5 sm:w-5" />
+            <span className="text-sm sm:text-base">Upload New Document</span>
           </Button>
         </div>
         
         {/* Stats Summary */}
         {!loading && !error && documents.length > 0 && (
-          <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
-            <div className="rounded-lg border border-border bg-card p-6">
-              <p className="text-sm font-medium text-muted-foreground">Total Documents</p>
-              <p className="mt-2 text-3xl font-bold">{documents.length}</p>
+          <div className="mb-6 lg:mb-8 grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-3">
+            <div className="rounded-lg border border-border bg-card p-4 sm:p-6">
+              <p className="text-xs sm:text-sm font-medium text-muted-foreground">Total Documents</p>
+              <p className="mt-2 text-2xl sm:text-3xl font-bold">{documents.length}</p>
             </div>
-            <div className="rounded-lg border border-border bg-card p-6">
-              <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
-              <p className="mt-2 text-3xl font-bold">
+            <div className="rounded-lg border border-border bg-card p-4 sm:p-6">
+              <p className="text-xs sm:text-sm font-medium text-muted-foreground">Total Revenue</p>
+              <p className="mt-2 text-2xl sm:text-3xl font-bold">
                 {documents.reduce((sum, doc) => sum + (doc.cost || 0), 0).toLocaleString()} sats
               </p>
             </div>
-            <div className="rounded-lg border border-border bg-card p-6">
-              <p className="text-sm font-medium text-muted-foreground">Avg. Price</p>
-              <p className="mt-2 text-3xl font-bold">
+            <div className="rounded-lg border border-border bg-card p-4 sm:p-6">
+              <p className="text-xs sm:text-sm font-medium text-muted-foreground">Avg. Price</p>
+              <p className="mt-2 text-2xl sm:text-3xl font-bold">
                 {documents.length > 0 
                   ? Math.round(documents.reduce((sum, doc) => sum + (doc.cost || 0), 0) / documents.length)
                   : 0
@@ -221,14 +221,14 @@ export default function PublishedPage() {
         {!loading && !error && documents.length > 0 && (
           <div className="rounded-lg border border-border bg-card">
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full min-w-[640px]">
                 <thead>
                   <tr className="border-b border-border bg-muted/50">
-                    <th className="px-6 py-4 text-left text-sm font-semibold">Title</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold">Tags</th>
-                    <th className="px-6 py-4 text-right text-sm font-semibold">Price</th>
-                    <th className="px-6 py-4 text-left text-sm font-semibold">Published</th>
-                    <th className="px-6 py-4 text-right text-sm font-semibold">Actions</th>
+                    <th className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold">Title</th>
+                    <th className="hidden md:table-cell px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold">Tags</th>
+                    <th className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-right text-xs sm:text-sm font-semibold">Price</th>
+                    <th className="hidden sm:table-cell px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold">Published</th>
+                    <th className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-right text-xs sm:text-sm font-semibold">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -240,9 +240,9 @@ export default function PublishedPage() {
                       }`}
                     >
                       {/* Title */}
-                      <td className="px-6 py-4">
+                      <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
                         <div>
-                          <p className="font-medium text-foreground">{doc.title}</p>
+                          <p className="font-medium text-foreground text-sm sm:text-base">{doc.title}</p>
                           <p className="text-xs text-muted-foreground">
                             {doc.hash.substring(0, 8)}...
                           </p>
@@ -250,7 +250,7 @@ export default function PublishedPage() {
                       </td>
 
                       {/* Tags */}
-                      <td className="px-6 py-4">
+                      <td className="hidden md:table-cell px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
                         <div className="flex flex-wrap gap-1">
                           {doc.tags && doc.tags.length > 0 ? (
                             doc.tags.slice(0, 3).map((tag) => (
@@ -274,41 +274,41 @@ export default function PublishedPage() {
                       </td>
 
                       {/* Price */}
-                      <td className="px-6 py-4 text-right">
-                        <div className="font-semibold text-foreground">
+                      <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-right">
+                        <div className="font-semibold text-foreground text-sm sm:text-base">
                           {formatCurrency(doc.cost)}
                         </div>
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-xs text-muted-foreground hidden sm:block">
                           ≈ {(doc.cost / 100000000).toFixed(6)} BSV
                         </div>
                       </td>
 
                       {/* Date */}
-                      <td className="px-6 py-4">
-                        <div className="text-sm text-muted-foreground">
+                      <td className="hidden sm:table-cell px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
+                        <div className="text-xs sm:text-sm text-muted-foreground">
                           {formatDate(doc.created_at)}
                         </div>
                       </td>
 
                       {/* Actions */}
-                      <td className="px-6 py-4">
-                        <div className="flex items-center justify-end gap-2">
+                      <td className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
+                        <div className="flex items-center justify-end gap-1 sm:gap-2">
                           <Button
                             size="sm"
                             variant="outline"
-                            className="gap-2"
+                            className="gap-1 sm:gap-2 h-8 sm:h-9 px-2 sm:px-3"
                             onClick={() => router.push(`/view/${doc.id}`)}
                             disabled={deleting === doc.id}
                             aria-label={`View ${doc.title}`}
                           >
-                            <Eye className="h-4 w-4" aria-hidden="true" />
-                            View
+                            <Eye className="h-3 w-3 sm:h-4 sm:w-4" aria-hidden="true" />
+                            <span className="hidden lg:inline text-xs sm:text-sm">View</span>
                           </Button>
 
                           <Button
                             size="sm"
                             variant={copiedLink === doc.id ? "default" : "outline"}
-                            className="gap-2"
+                            className="gap-1 sm:gap-2 h-8 sm:h-9 px-2 sm:px-3"
                             onClick={() => handleCopyPaymentLink(doc.id)}
                             disabled={generatingLink === doc.id || deleting === doc.id}
                             aria-label="Copy payment link"
@@ -316,18 +316,18 @@ export default function PublishedPage() {
                           >
                             {generatingLink === doc.id ? (
                               <>
-                                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                                <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" aria-hidden="true" />
                                 <span className="sr-only">Generating link...</span>
                               </>
                             ) : copiedLink === doc.id ? (
                               <>
-                                <Check className="h-4 w-4" aria-hidden="true" />
-                                Copied
+                                <Check className="h-3 w-3 sm:h-4 sm:w-4" aria-hidden="true" />
+                                <span className="hidden lg:inline text-xs sm:text-sm">Copied</span>
                               </>
                             ) : (
                               <>
-                                <Link2 className="h-4 w-4" aria-hidden="true" />
-                                Copy Link
+                                <Link2 className="h-3 w-3 sm:h-4 sm:w-4" aria-hidden="true" />
+                                <span className="hidden lg:inline text-xs sm:text-sm">Copy Link</span>
                               </>
                             )}
                           </Button>
@@ -335,20 +335,20 @@ export default function PublishedPage() {
                           <Button
                             size="sm"
                             variant="destructive"
-                            className="gap-2"
+                            className="gap-1 sm:gap-2 h-8 sm:h-9 px-2 sm:px-3"
                             onClick={() => handleDelete(doc.id, doc.title)}
                             disabled={deleting === doc.id}
                             aria-label={`Delete ${doc.title}`}
                           >
                             {deleting === doc.id ? (
                               <>
-                                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                                Deleting...
+                                <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" aria-hidden="true" />
+                                <span className="hidden lg:inline text-xs sm:text-sm">Deleting...</span>
                               </>
                             ) : (
                               <>
-                                <Trash2 className="h-4 w-4" aria-hidden="true" />
-                                Delete
+                                <Trash2 className="h-3 w-3 sm:h-4 sm:w-4" aria-hidden="true" />
+                                <span className="hidden lg:inline text-xs sm:text-sm">Delete</span>
                               </>
                             )}
                           </Button>

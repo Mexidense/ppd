@@ -19,14 +19,14 @@ export function WalletButton() {
 
   if (isConnected && identityKey) {
     return (
-      <div className="flex items-center gap-2" role="status" aria-live="polite">        
+      <div className="flex items-center gap-1.5 lg:gap-2" role="status" aria-live="polite">        
         {/* Wallet Connected */}
         <div 
-          className="flex items-center gap-2 rounded-md border border-green-600 bg-green-600/10 px-3 py-1.5"
+          className="flex items-center gap-1.5 lg:gap-2 rounded-md border border-green-600 bg-green-600/10 px-2 lg:px-3 py-1.5"
           aria-label={`Wallet connected: ${formatKey(identityKey)}`}
         >
-          <Check className="h-4 w-4 text-green-500" aria-hidden="true" />
-          <span className="text-sm font-medium text-green-500">
+          <Check className="h-3.5 w-3.5 lg:h-4 lg:w-4 text-green-500" aria-hidden="true" />
+          <span className="hidden sm:inline text-sm font-medium text-green-500">
             {formatKey(identityKey)}
           </span>
         </div>
@@ -36,10 +36,10 @@ export function WalletButton() {
           variant="outline"
           size="icon"
           onClick={disconnect}
-          className="border-border"
+          className="border-border h-9 w-9 lg:h-10 lg:w-10"
           aria-label="Disconnect wallet"
         >
-          <LogOut className="h-4 w-4" aria-hidden="true" />
+          <LogOut className="h-3.5 w-3.5 lg:h-4 lg:w-4" aria-hidden="true" />
           <span className="sr-only">Disconnect wallet</span>
         </Button>
       </div>
@@ -51,18 +51,20 @@ export function WalletButton() {
       <Button
         onClick={connect}
         disabled={isConnecting}
-        className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+        className="gap-1.5 lg:gap-2 bg-primary text-primary-foreground hover:bg-primary/90 text-sm lg:text-base px-3 lg:px-4"
         aria-label={isConnecting ? "Connecting to wallet" : "Connect wallet"}
       >
         {isConnecting ? (
           <>
-            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-            <span>Connecting...</span>
+            <Loader2 className="h-3.5 w-3.5 lg:h-4 lg:w-4 animate-spin" aria-hidden="true" />
+            <span className="hidden sm:inline">Connecting...</span>
+            <span className="sm:hidden">...</span>
           </>
         ) : (
           <>
-            <Wallet className="h-4 w-4" aria-hidden="true" />
-            <span>Connect Wallet</span>
+            <Wallet className="h-3.5 w-3.5 lg:h-4 lg:w-4" aria-hidden="true" />
+            <span className="hidden sm:inline">Connect Wallet</span>
+            <span className="sm:hidden">Connect</span>
           </>
         )}
       </Button>
