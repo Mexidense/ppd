@@ -148,16 +148,10 @@ export default function PublishedPage() {
         
         {/* Stats Summary */}
         {!loading && !error && documents.length > 0 && (
-          <div className="mb-6 lg:mb-8 grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-3">
+          <div className="mb-6 lg:mb-8 grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2">
             <div className="rounded-lg border border-border bg-card p-4 sm:p-6">
               <p className="text-xs sm:text-sm font-medium text-muted-foreground">Total Documents</p>
               <p className="mt-2 text-2xl sm:text-3xl font-bold">{documents.length}</p>
-            </div>
-            <div className="rounded-lg border border-border bg-card p-4 sm:p-6">
-              <p className="text-xs sm:text-sm font-medium text-muted-foreground">Total Revenue</p>
-              <p className="mt-2 text-2xl sm:text-3xl font-bold">
-                {documents.reduce((sum, doc) => sum + (doc.cost || 0), 0).toLocaleString()} sats
-              </p>
             </div>
             <div className="rounded-lg border border-border bg-card p-4 sm:p-6">
               <p className="text-xs sm:text-sm font-medium text-muted-foreground">Avg. Price</p>
