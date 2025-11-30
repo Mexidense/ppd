@@ -1,6 +1,14 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { supabase } from '@/backend/supabase/config';
 
+interface DocumentPerformance {
+  doc_id: string;
+  title: string;
+  cost: number;
+  purchases: number;
+  revenue: number;
+}
+
 interface CreatorStats {
   totalDocuments: number;
   totalPurchases: number;
@@ -11,6 +19,7 @@ interface CreatorStats {
     purchases: number;
     revenue: number;
   }>;
+  topDocuments: DocumentPerformance[];
 }
 
 export default async function handler(
@@ -32,7 +41,7 @@ export default async function handler(
     // Get all documents owned by the creator
     const { data: documents, error: docsError } = await supabase
       .from('documents')
-      .select('id, cost')
+      .select('id, title, cost')
       .eq('address_owner', address);
 
     if (docsError) {
@@ -52,6 +61,7 @@ export default async function handler(
           totalRevenue: 0,
           averagePrice: 0,
           dailyStats: [],
+          topDocuments: [],
         },
       });
     }
@@ -85,28 +95,49 @@ export default async function handler(
 
     // Calculate daily stats for the requested number of days
     const numDays = parseInt(days as string) || 7;
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - (numDays - 1));
-    startDate.setHours(0, 0, 0, 0);
+    
+    // Use UTC to avoid timezone issues
+    const now = new Date();
+    const startDate = new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()));
+    startDate.setUTCDate(startDate.getUTCDate() - (numDays - 1));
 
     // Initialize daily stats map with all days
     const dailyStatsMap = new Map<string, { purchases: number; revenue: number }>();
     for (let i = 0; i < numDays; i++) {
       const date = new Date(startDate);
-      date.setDate(date.getDate() + i);
+      date.setUTCDate(date.getUTCDate() + i);
       const dateStr = date.toISOString().split('T')[0];
       dailyStatsMap.set(dateStr, { purchases: 0, revenue: 0 });
     }
+    
+    console.log('Date range for stats:', {
+      startDate: startDate.toISOString().split('T')[0],
+      endDate: new Date(Date.UTC(now.getFullYear(), now.getMonth(), now.getDate())).toISOString().split('T')[0],
+      numDays,
+      totalPurchases,
+    });
 
     // Populate with actual data
     purchases?.forEach((purchase: any) => {
-      const purchaseDate = new Date(purchase.created_at);
-      const dateStr = purchaseDate.toISOString().split('T')[0];
+      // Extract date portion directly from the timestamp to avoid timezone issues
+      // created_at format is typically: "2025-11-29T12:34:56.789Z"
+      const dateStr = purchase.created_at.split('T')[0];
+      
+      console.log('Processing purchase:', {
+        id: purchase.id,
+        created_at: purchase.created_at,
+        dateStr,
+        cost: purchase.documents?.cost,
+        inRange: dailyStatsMap.has(dateStr),
+      });
       
       if (dailyStatsMap.has(dateStr)) {
         const existing = dailyStatsMap.get(dateStr)!;
         existing.purchases += 1;
         existing.revenue += purchase.documents?.cost || 0;
+        console.log(`Added to ${dateStr}:`, existing);
+      } else {
+        console.log(`Date ${dateStr} not in range`);
       }
     });
 
@@ -118,6 +149,38 @@ export default async function handler(
         revenue: stats.revenue,
       }))
       .sort((a, b) => a.date.localeCompare(b.date));
+    
+    console.log('Final daily stats:', JSON.stringify(dailyStats, null, 2));
+
+    // Calculate per-document performance
+    const docPerformanceMap = new Map<string, { purchases: number; revenue: number }>();
+    
+    // Initialize map for all documents
+    documents.forEach(doc => {
+      docPerformanceMap.set(doc.id, { purchases: 0, revenue: 0 });
+    });
+    
+    // Populate with purchase data
+    purchases?.forEach((purchase: any) => {
+      const docId = purchase.doc_id;
+      if (docPerformanceMap.has(docId)) {
+        const existing = docPerformanceMap.get(docId)!;
+        existing.purchases += 1;
+        existing.revenue += purchase.documents?.cost || 0;
+      }
+    });
+    
+    // Create top documents array
+    const topDocuments: DocumentPerformance[] = documents
+      .map(doc => ({
+        doc_id: doc.id,
+        title: doc.title,
+        cost: doc.cost,
+        purchases: docPerformanceMap.get(doc.id)?.purchases || 0,
+        revenue: docPerformanceMap.get(doc.id)?.revenue || 0,
+      }))
+      .sort((a, b) => b.revenue - a.revenue) // Sort by revenue descending
+      .slice(0, 5); // Top 5 documents
 
     const stats: CreatorStats = {
       totalDocuments,
@@ -125,6 +188,7 @@ export default async function handler(
       totalRevenue,
       averagePrice: Math.round(averagePrice),
       dailyStats,
+      topDocuments,
     };
 
     return res.status(200).json({ stats });
