@@ -92,7 +92,7 @@ export default function HomePage() {
               onClick={() => setFilter('all')}
               className={`px-6 py-3.5 font-semibold text-sm transition-all rounded-t-lg relative ${
                 filter === 'all'
-                  ? 'text-white bg-gradient-to-br from-primary via-primary to-primary/90 border-2 border-b-0 border-primary shadow-[0_-4px_12px_rgba(0,0,0,0.15),0_8px_16px_rgba(var(--primary-rgb),0.4)] z-10'
+                  ? 'text-primary-foreground bg-gradient-to-br from-primary via-primary to-primary/90 border-2 border-b-0 border-primary shadow-[0_-4px_12px_rgba(0,0,0,0.15),0_8px_16px_rgba(var(--primary-rgb),0.4)] z-10'
                   : 'text-muted-foreground hover:text-foreground bg-muted/30 border-2 border-transparent hover:border-border/50 hover:bg-muted/50 hover:shadow-md'
               }`}
             >
@@ -100,7 +100,7 @@ export default function HomePage() {
                 <span>🏪 Marketplace</span>
                 <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
                   filter === 'all' 
-                    ? 'bg-white/30 text-white shadow-sm' 
+                    ? 'bg-white/40 text-primary-foreground shadow-sm' 
                     : 'bg-muted text-muted-foreground'
                 }`}>
                   {documents.length}
@@ -113,7 +113,7 @@ export default function HomePage() {
                 onClick={() => setFilter('purchased')}
                 className={`px-6 py-3.5 font-semibold text-sm transition-all rounded-t-lg relative ${
                   filter === 'purchased'
-                    ? 'text-white bg-gradient-to-br from-primary via-primary to-primary/90 border-2 border-b-0 border-primary shadow-[0_-4px_12px_rgba(0,0,0,0.15),0_8px_16px_rgba(var(--primary-rgb),0.4)] z-10'
+                    ? 'text-primary-foreground bg-gradient-to-br from-primary via-primary to-primary/90 border-2 border-b-0 border-primary shadow-[0_-4px_12px_rgba(0,0,0,0.15),0_8px_16px_rgba(var(--primary-rgb),0.4)] z-10'
                     : 'text-muted-foreground hover:text-foreground bg-muted/30 border-2 border-transparent hover:border-border/50 hover:bg-muted/50 hover:shadow-md'
                 }`}
               >
@@ -121,7 +121,7 @@ export default function HomePage() {
                   <span>📚 My Library</span>
                   <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
                     filter === 'purchased' 
-                      ? 'bg-white/30 text-white shadow-sm' 
+                      ? 'bg-white/40 text-primary-foreground shadow-sm' 
                       : 'bg-muted text-muted-foreground'
                   }`}>
                     {documents.filter(d => d.isPurchased || d.isOwned).length}

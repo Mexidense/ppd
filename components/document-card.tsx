@@ -184,9 +184,9 @@ export function DocumentCard({
   };
 
   return (
-    <Card className={`group h-full transition-all hover:border-primary/50 hover:shadow-lg flex flex-col ${
-      isOwned ? 'border-green-500/50 bg-green-500/5' : 
-      isPurchased ? 'border-blue-500/50 bg-blue-500/5' : ''
+    <Card className={`group h-full transition-all duration-300 hover:border-primary hover:shadow-xl hover:-translate-y-1 flex flex-col shadow-md ${
+      isOwned ? 'border-green-500/50 bg-green-50 dark:bg-green-500/5' : 
+      isPurchased ? 'border-blue-500/50 bg-blue-50 dark:bg-blue-500/5' : 'bg-card'
     }`}>
       <CardContent className="p-6 flex-1">
         <div className="space-y-4">
@@ -194,12 +194,12 @@ export function DocumentCard({
           {(isOwned || isPurchased) && (
             <div className="flex gap-2 mb-2">
               {isOwned && (
-                <Badge className="bg-green-600 hover:bg-green-700">
+                <Badge className="bg-green-600 hover:bg-green-700 text-white border-0">
                   Owner
                 </Badge>
               )}
               {isPurchased && !isOwned && (
-                <Badge className="bg-blue-600 hover:bg-blue-700">
+                <Badge className="bg-blue-600 hover:bg-blue-700 text-white border-0">
                   Purchased
                 </Badge>
               )}
@@ -291,8 +291,8 @@ export function DocumentCard({
         </div>
       </CardContent>
 
-      <CardFooter className="bg-accent/30 p-4 text-center">
-        <p className="w-full text-sm font-medium text-accent-foreground">
+      <CardFooter className="bg-muted/50 border-t border-border p-4 text-center">
+        <p className="w-full text-xs font-medium text-muted-foreground">
           Posted {formatDate(created_at)}
         </p>
       </CardFooter>

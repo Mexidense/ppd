@@ -135,7 +135,7 @@ export default function CreatorStatsPage() {
           <h3 className="text-lg font-semibold mb-4">Overview</h3>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
             {/* Total Documents */}
-            <Card>
+            <Card className="shadow-md hover:shadow-lg transition-shadow duration-300">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   Total Documents
@@ -151,7 +151,7 @@ export default function CreatorStatsPage() {
             </Card>
 
             {/* Total Purchases */}
-            <Card>
+            <Card className="shadow-md hover:shadow-lg transition-shadow duration-300">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   Total Purchases
@@ -167,7 +167,7 @@ export default function CreatorStatsPage() {
             </Card>
 
             {/* Total Revenue */}
-            <Card>
+            <Card className="shadow-md hover:shadow-lg transition-shadow duration-300">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   Total Revenue
@@ -185,7 +185,7 @@ export default function CreatorStatsPage() {
             </Card>
 
             {/* Average Document Price */}
-            <Card>
+            <Card className="shadow-md hover:shadow-lg transition-shadow duration-300">
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">
                   Avg. Document Price
@@ -207,7 +207,7 @@ export default function CreatorStatsPage() {
         {/* Charts Section */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {/* Purchases Chart */}
-          <Card>
+          <Card className="shadow-md hover:shadow-lg transition-shadow duration-300">
             <CardHeader>
               <CardTitle>Daily Purchases</CardTitle>
               <p className="text-sm text-muted-foreground">
@@ -251,7 +251,7 @@ export default function CreatorStatsPage() {
           </Card>
 
           {/* Revenue Chart */}
-          <Card>
+          <Card className="shadow-md hover:shadow-lg transition-shadow duration-300">
             <CardHeader>
               <CardTitle>Daily Revenue</CardTitle>
               <p className="text-sm text-muted-foreground">

@@ -1,50 +1,60 @@
 @import "tailwindcss";
 
-/* Light mode colors */
+/* Light mode colors - Modern, UX-friendly palette with softer colors */
 :root {
-  --background: #f5f5f5;
-  --foreground: #171717;
+  --background: #f8f9fa;
+  --foreground: #1e293b;
   --card: #ffffff;
-  --card-foreground: #171717;
+  --card-foreground: #1e293b;
   --popover: #ffffff;
-  --popover-foreground: #171717;
-  --primary: #e6d788;
-  --primary-foreground: #1a1a1a;
-  --secondary: #e5e5e5;
-  --secondary-foreground: #171717;
-  --muted: #f5f5f5;
-  --muted-foreground: #737373;
-  --accent: #e6d788;
-  --accent-foreground: #1a1a1a;
-  --destructive: #ef4444;
+  --popover-foreground: #1e293b;
+  --primary: #d4af37;
+  --primary-foreground: #1e293b;
+  --secondary: #e2e8f0;
+  --secondary-foreground: #1e293b;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #fbbf24;
+  --accent-foreground: #1e293b;
+  --destructive: #dc2626;
   --destructive-foreground: #ffffff;
-  --border: #e5e5e5;
-  --input: #e5e5e5;
-  --ring: #e6d788;
+  --border: #cbd5e1;
+  --input: #e2e8f0;
+  --ring: #d4af37;
   --radius: 0.5rem;
+  --chart-1: #d4af37;
+  --chart-2: #fbbf24;
+  --chart-3: #f59e0b;
+  --chart-4: #eab308;
+  --chart-5: #fde047;
 }
 
 /* Dark mode colors */
 .dark {
-  --background: #1a1a1a;
-  --foreground: #FFFCA1;
-  --card: #2a2a2a;
-  --card-foreground: #FFFCA1;
-  --popover: #2a2a2a;
-  --popover-foreground: #FFFCA1;
-  --primary: #e6d788;
-  --primary-foreground: #1a1a1a;
-  --secondary: #333333;
-  --secondary-foreground: #FFFCA1;
-  --muted: #3a3a3a;
-  --muted-foreground: #a0a0a0;
-  --accent: #e6d788;
-  --accent-foreground: #1a1a1a;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --border: #3a3a3a;
-  --input: #2a2a2a;
-  --ring: #e6d788;
+  --background: #0a0a0a;
+  --foreground: #fafafa;
+  --card: #1a1a1a;
+  --card-foreground: #fafafa;
+  --popover: #1a1a1a;
+  --popover-foreground: #fafafa;
+  --primary: #d4af37;
+  --primary-foreground: #1e293b;
+  --secondary: #262626;
+  --secondary-foreground: #fafafa;
+  --muted: #262626;
+  --muted-foreground: #a1a1aa;
+  --accent: #fbbf24;
+  --accent-foreground: #0a0a0a;
+  --destructive: #dc2626;
+  --destructive-foreground: #fafafa;
+  --border: #262626;
+  --input: #1a1a1a;
+  --ring: #d4af37;
+  --chart-1: #d4af37;
+  --chart-2: #fbbf24;
+  --chart-3: #f59e0b;
+  --chart-4: #eab308;
+  --chart-5: #fde047;
 }
 
 body {
@@ -57,4 +67,59 @@ body {
 
 * {
   border-color: var(--border);
+}
+
+/* Enhanced shadows for light mode */
+:root {
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+.dark {
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 8px 10px -6px rgba(0, 0, 0, 0.6);
+}
+
+/* Smooth transitions */
+* {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+/* Better scrollbar for light mode */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--muted-foreground);
+  border-radius: 5px;
+  opacity: 0.5;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--foreground);
+  opacity: 0.7;
+}
+
+/* Card hover effects for better UX */
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
 }
