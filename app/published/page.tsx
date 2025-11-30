@@ -34,6 +34,7 @@ export default function PublishedPage() {
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
   const [generatingLink, setGeneratingLink] = useState<string | null>(null);
+  const [generatingQr, setGeneratingQr] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
   const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
   const [qrCodeTitle, setQrCodeTitle] = useState<string>("");
@@ -140,7 +141,7 @@ export default function PublishedPage() {
   };
 
   const handleShowQrCode = async (docId: string, title: string) => {
-    setGeneratingLink(docId);
+    setGeneratingQr(docId);
 
     try {
       const response = await fetch(`/api/documents/${docId}/payment-link`, {
@@ -162,7 +163,7 @@ export default function PublishedPage() {
       console.error('Payment link error:', err);
       alert(`Error: ${err instanceof Error ? err.message : 'Failed to generate payment link'}`);
     } finally {
-      setGeneratingLink(null);
+      setGeneratingQr(null);
     }
   };
 
@@ -376,12 +377,21 @@ export default function PublishedPage() {
                             size="sm"
                             className="gap-1 sm:gap-2 h-8 sm:h-9 px-2 sm:px-3 bg-yellow-500 hover:bg-yellow-600 text-white border-0"
                             onClick={() => handleShowQrCode(doc.id, doc.title)}
-                            disabled={generatingLink === doc.id || deleting === doc.id}
+                            disabled={generatingQr === doc.id || deleting === doc.id}
                             aria-label="Show QR code"
                             title="Generate QR code for payment link"
                           >
-                            <QrCode className="h-3 w-3 sm:h-4 sm:w-4" aria-hidden="true" />
-                            <span className="hidden lg:inline text-xs sm:text-sm">QR Code</span>
+                            {generatingQr === doc.id ? (
+                              <>
+                                <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" aria-hidden="true" />
+                                <span className="hidden lg:inline text-xs sm:text-sm">Loading...</span>
+                              </>
+                            ) : (
+                              <>
+                                <QrCode className="h-3 w-3 sm:h-4 sm:w-4" aria-hidden="true" />
+                                <span className="hidden lg:inline text-xs sm:text-sm">QR Code</span>
+                              </>
+                            )}
                           </Button>
                           
                           <Button
