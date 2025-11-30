@@ -58,7 +58,7 @@ export default function PublishedPage() {
         
         // Filter documents by owner
         const ownedDocs = (data.documents || []).filter(
-          (doc: any) => doc.address_owner === walletAddress
+          (doc: Document) => doc.address_owner === walletAddress
         );
         
         setDocuments(ownedDocs);
@@ -256,11 +256,11 @@ export default function PublishedPage() {
               <table className="w-full min-w-[640px]">
                 <thead>
                   <tr className="border-b border-border bg-muted/50">
-                    <th className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold">Title</th>
-                    <th className="hidden md:table-cell px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold">Tags</th>
-                    <th className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-right text-xs sm:text-sm font-semibold">Price</th>
-                    <th className="hidden sm:table-cell px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-semibold">Published</th>
-                    <th className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-right text-xs sm:text-sm font-semibold">Actions</th>
+                    <th className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-center text-xs sm:text-sm font-semibold">Title</th>
+                    <th className="hidden md:table-cell px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-center text-xs sm:text-sm font-semibold">Tags</th>
+                    <th className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-center text-xs sm:text-sm font-semibold">Price</th>
+                    <th className="hidden sm:table-cell px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-center text-xs sm:text-sm font-semibold">Published</th>
+                    <th className="px-3 sm:px-4 lg:px-6 py-3 sm:py-4 text-center text-xs sm:text-sm font-semibold">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -334,7 +334,7 @@ export default function PublishedPage() {
                             aria-label={`View ${doc.title}`}
                           >
                             <Eye className="h-3 w-3 sm:h-4 sm:w-4" aria-hidden="true" />
-                            <span className="hidden lg:inline text-xs sm:text-sm">View</span>
+                            <span className="hidden lg:inline text-xs sm:text-sm">View doc</span>
                           </Button>
 
                           <Button
