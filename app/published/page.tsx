@@ -5,8 +5,16 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useWallet } from "@/components/wallet-provider";
-import { Upload, Eye, Trash2, Loader2, Link2, Check } from "lucide-react";
+import { Upload, Eye, Trash2, Loader2, Link2, Check, QrCode } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
+import { QRCodeCanvas } from "qrcode.react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface Document {
   id: string;
@@ -27,6 +35,9 @@ export default function PublishedPage() {
   const [deleting, setDeleting] = useState<string | null>(null);
   const [generatingLink, setGeneratingLink] = useState<string | null>(null);
   const [copiedLink, setCopiedLink] = useState<string | null>(null);
+  const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
+  const [qrCodeTitle, setQrCodeTitle] = useState<string>("");
+  const [showQrModal, setShowQrModal] = useState(false);
 
   useEffect(() => {
     async function fetchPublishedDocuments() {
@@ -117,6 +128,33 @@ export default function PublishedPage() {
       // Show copied state
       setCopiedLink(docId);
       setTimeout(() => setCopiedLink(null), 2000);
+    } catch (err) {
+      console.error('Payment link error:', err);
+      alert(`Error: ${err instanceof Error ? err.message : 'Failed to generate payment link'}`);
+    } finally {
+      setGeneratingLink(null);
+    }
+  };
+
+  const handleShowQrCode = async (docId: string, title: string) => {
+    setGeneratingLink(docId);
+
+    try {
+      const response = await fetch(`/api/documents/${docId}/payment-link`, {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to generate payment link');
+      }
+
+      const data = await response.json();
+      
+      // Set QR code data and show modal
+      setQrCodeUrl(data.full_url);
+      setQrCodeTitle(title);
+      setShowQrModal(true);
     } catch (err) {
       console.error('Payment link error:', err);
       alert(`Error: ${err instanceof Error ? err.message : 'Failed to generate payment link'}`);
@@ -325,6 +363,19 @@ export default function PublishedPage() {
                               </>
                             )}
                           </Button>
+
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="gap-1 sm:gap-2 h-8 sm:h-9 px-2 sm:px-3"
+                            onClick={() => handleShowQrCode(doc.id, doc.title)}
+                            disabled={generatingLink === doc.id || deleting === doc.id}
+                            aria-label="Show QR code"
+                            title="Generate QR code for payment link"
+                          >
+                            <QrCode className="h-3 w-3 sm:h-4 sm:w-4" aria-hidden="true" />
+                            <span className="hidden lg:inline text-xs sm:text-sm">QR Code</span>
+                          </Button>
                           
                           <Button
                             size="sm"
@@ -356,6 +407,48 @@ export default function PublishedPage() {
           </div>
         )}
       </div>
+
+      {/* QR Code Modal */}
+      <Dialog open={showQrModal} onOpenChange={setShowQrModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Payment QR Code</DialogTitle>
+            <DialogDescription>
+              Scan this QR code to access the payment link for &quot;{qrCodeTitle}&quot;
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col items-center justify-center gap-4 py-4">
+            {qrCodeUrl && (
+              <>
+                <div className="bg-white p-4 rounded-lg">
+                  <QRCodeCanvas
+                    value={qrCodeUrl}
+                    size={256}
+                    level="H"
+                    includeMargin={true}
+                  />
+                </div>
+                <div className="w-full">
+                  <p className="text-xs text-muted-foreground text-center break-all">
+                    {qrCodeUrl}
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={async () => {
+                    await navigator.clipboard.writeText(qrCodeUrl);
+                    alert('Link copied to clipboard!');
+                  }}
+                >
+                  <Link2 className="h-4 w-4 mr-2" />
+                  Copy Link
+                </Button>
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
