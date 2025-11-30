@@ -598,6 +598,167 @@ This is a personal project, but suggestions are welcome!
 
 ---
 
+## 📖 PDF Viewing Approaches
+
+The app now uses **react-pdf** (built on PDF.js) for better PDF rendering instead of iframes. Here are the different approaches:
+
+### ✅ Current: React-PDF (Recommended)
+
+**Pros:**
+- ✨ Native React component
+- 🎨 Full styling control
+- 📱 Better mobile support
+- 🔍 Built-in zoom and navigation
+- 📄 Page-by-page rendering
+- 🎯 Text selection and search
+- 🔒 More secure (no iframe sandboxing issues)
+
+**Cons:**
+- 📦 Larger bundle size (~500KB)
+- 🚀 Requires worker configuration
+
+### Alternative Approaches:
+
+#### 1. **Iframe (Previous Implementation)**
+```tsx
+<iframe src={pdfUrl} className="w-full h-full" />
+```
+- ✅ Simple, native browser support
+- ❌ Limited control over UI
+- ❌ Browser compatibility issues
+- ❌ No zoom/navigation controls
+
+#### 2. **Object/Embed Tags**
+```tsx
+<object data={pdfUrl} type="application/pdf" />
+```
+- ✅ Native HTML element
+- ❌ Similar limitations to iframe
+- ❌ Poor mobile support
+
+#### 3. **PDF.js Directly (Advanced)**
+```tsx
+// More control but more complex setup
+import * as pdfjsLib from 'pdfjs-dist';
+// Manual canvas rendering
+```
+- ✅ Maximum control
+- ❌ More complex implementation
+- ❌ Requires manual UI building
+
+#### 4. **Third-Party Services**
+- PDF.js Express (commercial)
+- PSPDFKit (commercial)
+- ✅ Enterprise features
+- ❌ Licensing costs
+
+### Configuration
+
+The app uses the unpkg CDN for the PDF.js worker:
+```tsx
+pdfjs.GlobalWorkerOptions.workerSrc = 
+  `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`;
+```
+
+For production, consider self-hosting the worker file for better performance and reliability.
+
+### Switching Back to Iframe
+
+If you prefer the iframe approach, simply replace the `PDFViewer` component in `app/view/[id]/page.tsx`:
+
+```tsx
+// Instead of:
+<PDFViewer url={pdfUrl} title={documentMetadata?.title} onDownload={handleDownload} />
+
+// Use:
+<div className="w-full h-full">
+  <iframe src={pdfUrl} className="w-full h-full border-0" title={documentMetadata?.title || 'Document'} />
+</div>
+```
+
+---
+
+## 🔧 Troubleshooting
+
+### Documents Not Displaying in Viewer
+
+If documents aren't displaying properly in the viewer page, check the following:
+
+#### 1. **Check Browser Console Logs**
+Open the browser console (F12) and look for:
+- "PDF magic bytes check" - Should show `%PDF` (indicates valid PDF data)
+- "Received blob" - Should show file size and type
+- "PDF header check" - Should show `%PDF-`
+
+#### 2. **Verify Database Storage**
+The PDF files are stored as BYTEA in Supabase. Check:
+```bash
+# In Supabase SQL Editor, check a document's file_data:
+SELECT id, title, file_size, 
+       length(file_data) as stored_bytes,
+       substring(file_data, 1, 4) as file_header
+FROM documents 
+LIMIT 1;
+```
+- `stored_bytes` should match `file_size`
+- `file_header` should show hex bytes starting with `25504446` (which is %PDF in hex)
+
+#### 3. **API Response Check**
+Test the view API endpoint:
+```bash
+# Check if the API returns valid PDF data
+curl -v "http://localhost:3000/api/documents/[DOC_ID]/view?buyer=[WALLET_ADDRESS]" > test.pdf
+
+# Verify it's a valid PDF
+file test.pdf  # Should show "PDF document"
+```
+
+#### 4. **Browser Compatibility**
+Some browsers don't support inline PDF viewing in iframes:
+- ✅ Chrome/Edge: Full support
+- ⚠️ Firefox: May require PDF.js
+- ⚠️ Safari: Limited iframe PDF support
+- 💡 The app now includes a fallback download option for unsupported browsers
+
+#### 5. **Common Issues & Fixes**
+
+**Issue: "Received empty file data"**
+- Cause: Document uploaded but file_data is NULL or empty
+- Fix: Re-upload the document
+
+**Issue: "Invalid PDF file format"**
+- Cause: File data corrupted during storage/retrieval
+- Fix: Check the hex string conversion in `backend/supabase/documents.ts`
+- Verify: `\\x` prefix is correct for BYTEA hex format
+
+**Issue: "Failed to display PDF"**
+- Cause: Browser security restrictions
+- Fix: Use the download button instead
+
+#### 6. **Enable Debug Mode**
+Check the following files for detailed console logs:
+- `app/view/[id]/page.tsx` - Frontend PDF loading
+- `pages/api/documents/[id]/view.ts` - API endpoint
+- `backend/supabase/document-files.ts` - Database retrieval
+
+#### 7. **Test Upload & Retrieval**
+```bash
+# 1. Upload a simple test PDF
+# 2. Check the console logs during upload
+# 3. Navigate to the viewer page
+# 4. Check the console logs during viewing
+# 5. Compare file sizes: upload vs download
+```
+
+### Still Having Issues?
+
+1. Check that your Supabase database migrations ran successfully
+2. Verify Row Level Security policies allow document access
+3. Ensure your BSV wallet is properly connected
+4. Try clearing browser cache and reloading
+
+---
+
 ## 📄 License
 
 MIT License - Feel free to use this project for your own purposes.

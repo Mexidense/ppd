@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { useWallet } from "@/components/wallet-provider";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { PDFViewer } from "@/components/pdf-viewer";
 import { ArrowLeft, Download, Loader2, FileText, Coins, User } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 
@@ -243,13 +244,11 @@ export default function ViewDocumentPage() {
         )}
 
         {!loading && !error && pdfUrl && (
-          <div className="w-full h-full">
-            <iframe
-              src={pdfUrl}
-              className="w-full h-full border-0"
-              title={documentMetadata?.title || 'Document'}
-            />
-          </div>
+          <PDFViewer 
+            url={pdfUrl} 
+            title={documentMetadata?.title}
+            onDownload={handleDownload}
+          />
         )}
       </div>
     </div>
