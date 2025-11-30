@@ -176,10 +176,10 @@ export function UploadDocument() {
         const fileInput = document.getElementById('file-input') as HTMLInputElement
         if (fileInput) fileInput.value = ''
         
-        // Optionally redirect or refresh
+        // Redirect to published documents list
         setTimeout(() => {
-          window.location.href = '/'
-        }, 2000)
+          window.location.href = '/published'
+        }, 1500)
       } else {
         showMessage(data.error || 'Failed to upload document', 'error')
       }

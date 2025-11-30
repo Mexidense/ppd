@@ -99,6 +99,9 @@ export default function PublishedPage() {
       
       // Show success message
       alert('Document deleted successfully!');
+      
+      // Refresh the page to ensure everything is updated
+      router.refresh();
     } catch (err) {
       console.error('Delete error:', err);
       alert(`Error: ${err instanceof Error ? err.message : 'Failed to delete document'}`);

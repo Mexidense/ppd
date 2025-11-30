@@ -58,11 +58,18 @@ Create `.env.local`:
 NEXT_PUBLIC_SUPABASE_URL=your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 
+# Supabase Service Role Key (Required for admin operations like delete)
+# IMPORTANT: Keep this secret! Never expose to client-side code
+# Get from: https://app.supabase.com/project/_/settings/api (under "service_role" section)
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
 # Backend Wallet (generates from setup command)
 BACKEND_PRIVATE_KEY=your-backend-private-key
 STORAGE_URL=https://storage.babbage.systems
 NETWORK=main
 ```
+
+**Important:** The `SUPABASE_SERVICE_ROLE_KEY` is required for document deletion to work properly. This key bypasses Row Level Security (RLS) policies and should only be used in secure server-side contexts.
 
 ### 4. Generate Backend Wallet
 
@@ -333,6 +340,7 @@ In Vercel dashboard → Settings → Environment Variables:
 ```
 NEXT_PUBLIC_SUPABASE_URL=your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 BACKEND_PRIVATE_KEY=your-backend-private-key
 STORAGE_URL=https://storage.babbage.systems
 NETWORK=main

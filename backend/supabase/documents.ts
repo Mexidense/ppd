@@ -1,4 +1,5 @@
 import { supabase, Document } from './config';
+import { supabaseAdmin } from './server-config';
 
 /**
  * Create a new document with file data
@@ -176,12 +177,13 @@ export async function updateDocumentCost(
 }
 
 /**
- * Delete a document
+ * Delete a document (uses admin client to bypass RLS)
  */
 export async function deleteDocument(
   id: string
 ): Promise<{ error: any }> {
-  const { error } = await supabase
+  // Use admin client to bypass RLS for deletion
+  const { error } = await supabaseAdmin
     .from('documents')
     .delete()
     .eq('id', id);
