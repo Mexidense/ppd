@@ -329,27 +329,27 @@ export function UploadDocument() {
             
             {/* Tag Input Box with Selected Tags Inside */}
             <div 
-              className="min-h-[80px] sm:min-h-[100px] p-2 sm:p-3 border border-input rounded-lg bg-gray-50 dark:bg-gray-800 transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-ring"
+              className="min-h-[60px] p-2 border border-input rounded-lg bg-gray-50 dark:bg-gray-800 transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-ring"
               role="group"
               aria-label="Document tags"
             >
               {/* Selected Tags as Boxes with Different Colors */}
-              <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-2" role="list" aria-label="Selected tags">
+              <div className="flex flex-wrap gap-1.5 mb-2" role="list" aria-label="Selected tags">
                 {selectedTags.map((tag, index) => (
                   <div
                     key={tag}
-                    className={`inline-flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 ${getTagColor(tag, index)} text-white rounded-md text-xs sm:text-sm font-medium shadow-sm transition-all`}
+                    className={`inline-flex items-center gap-1 pl-2 pr-1 py-0.5 ${getTagColor(tag, index)} text-white rounded text-xs font-medium shadow-sm transition-all`}
                     role="listitem"
                   >
                     <span>{tag}</span>
                     <button
                       type="button"
                       onClick={() => handleRemoveTag(tag)}
-                      className="ml-0.5 hover:bg-white/25 rounded-full p-0.5 transition-colors"
+                      className="hover:bg-white/25 rounded-full p-0.5 transition-colors"
                       disabled={loading}
                       aria-label={`Remove tag ${tag}`}
                     >
-                      <X className="h-3 w-3 sm:h-3.5 sm:w-3.5" aria-hidden="true" />
+                      <X className="h-3 w-3" aria-hidden="true" />
                     </button>
                   </div>
                 ))}
@@ -364,7 +364,7 @@ export function UploadDocument() {
                   onKeyPress={handleTagKeyPress}
                   disabled={loading}
                   placeholder={selectedTags.length === 0 ? "Type a tag and press Enter..." : "Add another tag..."}
-                  className="flex-1 min-w-[120px] sm:min-w-[150px] px-2 py-1 bg-transparent border-none focus:outline-none text-xs sm:text-sm dark:text-white"
+                  className="flex-1 min-w-[120px] px-2 py-1 bg-transparent border-none focus:outline-none text-xs dark:text-white"
                   aria-describedby="tags-help"
                 />
               </div>
@@ -373,9 +373,9 @@ export function UploadDocument() {
 
             {/* Available Tags (Quick Select) */}
             {availableTags.length > 0 && (
-              <div className="mt-2 sm:mt-3">
+              <div className="mt-2">
                 <p className="text-xs text-muted-foreground mb-2" id="suggested-tags-label">Suggested tags (click to add):</p>
-                <div className="flex flex-wrap gap-1.5 sm:gap-2" role="list" aria-labelledby="suggested-tags-label">
+                <div className="flex flex-wrap gap-1.5" role="list" aria-labelledby="suggested-tags-label">
                   {availableTags
                     .filter(tag => !selectedTags.includes(tag.name))
                     .slice(0, 10)
@@ -385,7 +385,7 @@ export function UploadDocument() {
                         type="button"
                         onClick={() => handleAddTag(tag.name)}
                         disabled={loading}
-                        className="px-2 sm:px-3 py-1 text-xs font-medium border border-input rounded-md hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors disabled:opacity-50"
+                        className="px-2 py-0.5 text-xs font-medium border border-input rounded hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors disabled:opacity-50"
                         aria-label={`Add tag ${tag.name}`}
                       >
                         {tag.name}

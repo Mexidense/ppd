@@ -283,23 +283,26 @@ export default function PublishedPage() {
 
                       {/* Tags */}
                       <td className="hidden md:table-cell px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
-                        <div className="flex flex-wrap gap-1">
+                        <div className="flex flex-wrap gap-2">
                           {doc.tags && doc.tags.length > 0 ? (
-                            doc.tags.slice(0, 3).map((tag) => (
+                            doc.tags.slice(0, 4).map((tag) => (
                               <Badge 
                                 key={tag.id} 
                                 variant="secondary"
-                                className="text-xs"
+                                className="text-sm px-3 py-1.5 font-medium hover:bg-secondary/90 cursor-default transition-colors"
                               >
                                 {tag.name}
                               </Badge>
                             ))
                           ) : (
-                            <span className="text-xs text-muted-foreground">No tags</span>
+                            <span className="text-sm text-muted-foreground">No tags</span>
                           )}
-                          {doc.tags && doc.tags.length > 3 && (
-                            <Badge variant="outline" className="text-xs">
-                              +{doc.tags.length - 3}
+                          {doc.tags && doc.tags.length > 4 && (
+                            <Badge 
+                              variant="outline" 
+                              className="text-sm px-3 py-1.5 font-medium cursor-default"
+                            >
+                              +{doc.tags.length - 4}
                             </Badge>
                           )}
                         </div>
