@@ -95,11 +95,23 @@ async function handleUpload(req: NextApiRequest, res: NextApiResponse) {
     const fileBuffer = fs.readFileSync(file.filepath);
     
     // Upload to MinIO
-    const uploadResult = await uploadFile(
-      fileBuffer,
-      file.originalFilename || 'document.pdf',
-      file.mimetype || 'application/pdf'
-    );
+    let uploadResult;
+    try {
+      uploadResult = await uploadFile(
+        fileBuffer,
+        file.originalFilename || 'document.pdf',
+        file.mimetype || 'application/pdf'
+      );
+    } catch (uploadError: any) {
+      // Clean up temporary file
+      try {
+        fs.unlinkSync(file.filepath);
+      } catch (e) {
+        console.error('Failed to delete temp file:', e);
+      }
+      
+      throw new Error(`File upload failed: ${uploadError.message}`);
+    }
 
     // Create document record in database
     const { data: document, error: dbError } = await createDocument(
@@ -111,6 +123,24 @@ async function handleUpload(req: NextApiRequest, res: NextApiResponse) {
     );
 
     if (dbError || !document) {
+      // Database record creation failed - clean up the uploaded file
+      console.error('Database error, cleaning up uploaded file:', dbError);
+      
+      try {
+        const { deleteFile } = await import('../../../backend/storage/file-operations');
+        await deleteFile(uploadResult.path);
+        console.log('Successfully cleaned up uploaded file');
+      } catch (cleanupError) {
+        console.error('Failed to cleanup uploaded file:', cleanupError);
+      }
+      
+      // Clean up temporary file
+      try {
+        fs.unlinkSync(file.filepath);
+      } catch (e) {
+        console.error('Failed to delete temp file:', e);
+      }
+      
       return res.status(500).json({ 
         error: 'Failed to create document record', 
         details: dbError 
