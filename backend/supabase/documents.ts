@@ -51,18 +51,39 @@ export async function createDocument(
 }
 
 /**
- * Get a document by ID
+ * Get a document by ID with tags
  */
 export async function getDocumentById(
   id: string
 ): Promise<{ data: Document | null; error: any }> {
   const { data, error } = await supabase
     .from('documents')
-    .select('*')
+    .select(`
+      *,
+      document_tags (
+        tags (
+          id,
+          name
+        )
+      )
+    `)
     .eq('id', id)
     .single();
 
-  return { data, error };
+  if (error || !data) {
+    return { data, error };
+  }
+
+  // Transform to include tags array
+  const document = {
+    ...data,
+    tags: data.document_tags?.map((dt: any) => dt.tags).filter(Boolean) || []
+  };
+
+  // Remove document_tags from the response
+  delete (document as any).document_tags;
+
+  return { data: document as Document, error: null };
 }
 
 /**
@@ -81,7 +102,7 @@ export async function getDocumentByHash(
 }
 
 /**
- * Get all documents
+ * Get all documents with their tags
  */
 export async function getAllDocuments(): Promise<{
   data: Document[] | null;
@@ -89,10 +110,31 @@ export async function getAllDocuments(): Promise<{
 }> {
   const { data, error } = await supabase
     .from('documents')
-    .select('*')
+    .select(`
+      *,
+      document_tags (
+        tags (
+          id,
+          name
+        )
+      )
+    `)
     .order('created_at', { ascending: false });
 
-  return { data, error };
+  if (error) {
+    return { data: null, error };
+  }
+
+  // Transform the nested structure to include tags array
+  const documents = data?.map((doc: any) => ({
+    ...doc,
+    tags: doc.document_tags?.map((dt: any) => dt.tags).filter(Boolean) || []
+  }));
+
+  // Remove document_tags from the response
+  documents?.forEach((doc: any) => delete doc.document_tags);
+
+  return { data: documents, error: null };
 }
 
 /**
@@ -142,17 +184,38 @@ export async function searchDocumentsByPath(
 }
 
 /**
- * Get all documents by owner address
+ * Get all documents by owner address with tags
  */
 export async function getDocumentsByOwner(
   addressOwner: string
 ): Promise<{ data: Document[] | null; error: any }> {
   const { data, error } = await supabase
     .from('documents')
-    .select('*')
+    .select(`
+      *,
+      document_tags (
+        tags (
+          id,
+          name
+        )
+      )
+    `)
     .eq('address_owner', addressOwner)
     .order('created_at', { ascending: false });
 
-  return { data, error };
+  if (error) {
+    return { data: null, error };
+  }
+
+  // Transform the nested structure to include tags array
+  const documents = data?.map((doc: any) => ({
+    ...doc,
+    tags: doc.document_tags?.map((dt: any) => dt.tags).filter(Boolean) || []
+  }));
+
+  // Remove document_tags from the response
+  documents?.forEach((doc: any) => delete doc.document_tags);
+
+  return { data: documents, error: null };
 }
 

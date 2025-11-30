@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getAllDocuments, createDocument } from '../../../backend/supabase/documents';
 import { searchDocuments, SearchFilters } from '../../../backend/supabase/search';
+import { getOrCreateTag, setDocumentTags } from '../../../backend/supabase/tags';
 import formidable from 'formidable';
 import fs from 'fs';
 import { createHash } from 'crypto';
@@ -72,6 +73,7 @@ async function handleUpload(req: NextApiRequest, res: NextApiResponse) {
     const title = Array.isArray(fields.title) ? fields.title[0] : fields.title;
     const cost = Array.isArray(fields.cost) ? fields.cost[0] : fields.cost;
     const addressOwner = Array.isArray(fields.address_owner) ? fields.address_owner[0] : fields.address_owner;
+    const tagsJson = Array.isArray(fields.tags) ? fields.tags[0] : fields.tags;
 
     // Validate required fields
     if (!title || !cost) {
@@ -136,8 +138,45 @@ async function handleUpload(req: NextApiRequest, res: NextApiResponse) {
       });
     }
 
-    // If tags are provided, we could add them here
-    // (requires tag creation logic which seems to exist in backend/supabase/tags.ts)
+    console.log('Document created successfully:', document.id);
+
+    // Handle tags if provided
+    if (tagsJson) {
+      try {
+        const tagNames = JSON.parse(tagsJson) as string[];
+        console.log('Processing tags:', tagNames);
+
+        if (Array.isArray(tagNames) && tagNames.length > 0) {
+          // Get or create tags and collect their IDs
+          const tagIds: string[] = [];
+          
+          for (const tagName of tagNames) {
+            const { data: tag, error: tagError } = await getOrCreateTag(tagName.trim().toLowerCase());
+            
+            if (tag) {
+              tagIds.push(tag.id);
+            } else {
+              console.error('Failed to get/create tag:', tagName, tagError);
+            }
+          }
+
+          // Associate tags with the document
+          if (tagIds.length > 0) {
+            const { error: setTagsError } = await setDocumentTags(document.id, tagIds);
+            
+            if (setTagsError) {
+              console.error('Failed to set document tags:', setTagsError);
+              // Don't fail the upload, just log the error
+            } else {
+              console.log('Successfully added', tagIds.length, 'tags to document');
+            }
+          }
+        }
+      } catch (parseError) {
+        console.error('Error parsing or processing tags:', parseError);
+        // Don't fail the upload, just log the error
+      }
+    }
 
     return res.status(201).json({
       message: 'Document uploaded successfully',
