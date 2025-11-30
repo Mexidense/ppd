@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Header } from "@/components/header";
 import { useWallet } from "@/components/wallet-provider";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -131,8 +130,6 @@ export default function ViewDocumentPage() {
 
   return (
     <div className="flex flex-col h-screen">
-      <Header />
-      
       {/* Viewer Header */}
       <div className="border-b border-border bg-background">
         <div className="flex items-center justify-between px-6 py-4">

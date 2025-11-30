@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Header } from "@/components/header";
 import { DocumentCard, DocumentCardProps } from "@/components/document-card";
 import { useWallet } from "@/components/wallet-provider";
 import { Button } from "@/components/ui/button";
@@ -16,7 +15,7 @@ export default function HomePage() {
   const [documents, setDocuments] = useState<DocumentWithStatus[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [filter, setFilter] = useState<'all' | 'owned' | 'purchased'>('all');
+  const [filter, setFilter] = useState<'all' | 'purchased'>('all');
 
   useEffect(() => {
     async function fetchDocuments() {
@@ -68,45 +67,90 @@ export default function HomePage() {
   }, [isConnected, identityKey, address]);
   
   const filteredDocuments = documents.filter((doc) => {
-    if (filter === 'owned') return doc.isOwned;
-    if (filter === 'purchased') return doc.isPurchased;
-    return true; // 'all'
+    if (filter === 'purchased') {
+      // Show purchased documents or owned documents in library view
+      return doc.isPurchased || doc.isOwned;
+    }
+    return true; // 'all' - show everything
   });
 
   return (
     <div className="flex flex-col h-full">
-      <Header />
-      
       <div className="flex-1 p-8">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold mb-4">All Documents</h2>
-          
-          {isConnected && (
-            <div className="flex gap-2">
-              <Button
-                variant={filter === 'all' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFilter('all')}
-              >
-                All ({documents.length})
-              </Button>
-              <Button
-                variant={filter === 'owned' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFilter('owned')}
-              >
-                My Documents ({documents.filter(d => d.isOwned).length})
-              </Button>
-              <Button
-                variant={filter === 'purchased' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFilter('purchased')}
-              >
-                Purchased ({documents.filter(d => d.isPurchased).length})
-              </Button>
-            </div>
-          )}
+        {/* Page Header */}
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold">Documents</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Browse, purchase, and manage your document collection
+          </p>
         </div>
+
+        {/* Tabs Navigation */}
+        <div className="mb-8">
+          <div className="flex gap-2">
+            <button
+              onClick={() => setFilter('all')}
+              className={`px-6 py-3.5 font-semibold text-sm transition-all rounded-t-lg relative ${
+                filter === 'all'
+                  ? 'text-white bg-gradient-to-br from-primary via-primary to-primary/90 border-2 border-b-0 border-primary shadow-[0_-4px_12px_rgba(0,0,0,0.15),0_8px_16px_rgba(var(--primary-rgb),0.4)] z-10'
+                  : 'text-muted-foreground hover:text-foreground bg-muted/30 border-2 border-transparent hover:border-border/50 hover:bg-muted/50 hover:shadow-md'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <span>🏪 Marketplace</span>
+                <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
+                  filter === 'all' 
+                    ? 'bg-white/30 text-white shadow-sm' 
+                    : 'bg-muted text-muted-foreground'
+                }`}>
+                  {documents.length}
+                </span>
+              </div>
+            </button>
+            
+            {isConnected && (
+              <button
+                onClick={() => setFilter('purchased')}
+                className={`px-6 py-3.5 font-semibold text-sm transition-all rounded-t-lg relative ${
+                  filter === 'purchased'
+                    ? 'text-white bg-gradient-to-br from-primary via-primary to-primary/90 border-2 border-b-0 border-primary shadow-[0_-4px_12px_rgba(0,0,0,0.15),0_8px_16px_rgba(var(--primary-rgb),0.4)] z-10'
+                    : 'text-muted-foreground hover:text-foreground bg-muted/30 border-2 border-transparent hover:border-border/50 hover:bg-muted/50 hover:shadow-md'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <span>📚 My Library</span>
+                  <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
+                    filter === 'purchased' 
+                      ? 'bg-white/30 text-white shadow-sm' 
+                      : 'bg-muted text-muted-foreground'
+                  }`}>
+                    {documents.filter(d => d.isPurchased || d.isOwned).length}
+                  </span>
+                </div>
+              </button>
+            )}
+          </div>
+          
+          {/* Content Area with Border */}
+          <div className="border-2 border-primary rounded-lg rounded-tl-none p-6 bg-background shadow-[0_4px_20px_rgba(0,0,0,0.1)]">
+            {/* Tab Content Description */}
+            {filter === 'all' && (
+              <div className="mb-4">
+                <p className="text-sm text-muted-foreground">
+                  📖 Browse all available documents • Purchase to unlock and view
+                </p>
+              </div>
+            )}
+            {filter === 'purchased' && isConnected && (
+              <div className="mb-4">
+                <p className="text-sm text-muted-foreground">
+                  ✅ Documents you own or have purchased • Ready to view anytime
+                </p>
+              </div>
+            )}
+            
+            {/* Content */}
+            <div className="-mx-6 -mb-6 px-6 pb-6">
 
         {loading && (
           <div className="flex h-full items-center justify-center">
@@ -125,35 +169,37 @@ export default function HomePage() {
           </div>
         )}
 
-        {!loading && !error && filteredDocuments.length === 0 && filter === 'all' && (
-          <div className="flex h-full items-center justify-center">
-            <div className="text-center">
-              <p className="text-xl text-muted-foreground">No documents found</p>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Upload your first document to get started
-              </p>
-            </div>
-          </div>
-        )}
-
-        {!loading && !error && filteredDocuments.length === 0 && filter === 'owned' && (
-          <div className="flex h-full items-center justify-center">
-            <div className="text-center">
-              <p className="text-xl text-muted-foreground">No documents published</p>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Upload a document to see it here
-              </p>
-            </div>
-          </div>
-        )}
-
-        {!loading && !error && filteredDocuments.length === 0 && filter === 'purchased' && (
-          <div className="flex h-full items-center justify-center">
-            <div className="text-center">
-              <p className="text-xl text-muted-foreground">No purchased documents</p>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Purchase a document to add it to your collection
-              </p>
+        {!loading && !error && filteredDocuments.length === 0 && (
+          <div className="flex h-96 items-center justify-center">
+            <div className="text-center max-w-md">
+              {filter === 'all' && (
+                <>
+                  <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                    <span className="text-3xl">📄</span>
+                  </div>
+                  <p className="text-xl font-semibold mb-2">No documents available</p>
+                  <p className="text-sm text-muted-foreground">
+                    Be the first to upload and share your content
+                  </p>
+                </>
+              )}
+              {filter === 'purchased' && (
+                <>
+                  <div className="mx-auto w-16 h-16 rounded-full bg-muted flex items-center justify-center mb-4">
+                    <span className="text-3xl">📚</span>
+                  </div>
+                  <p className="text-xl font-semibold mb-2">Your library is empty</p>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Purchase documents from the Marketplace to build your collection
+                  </p>
+                  <Button
+                    variant="outline"
+                    onClick={() => setFilter('all')}
+                  >
+                    Browse Marketplace
+                  </Button>
+                </>
+              )}
             </div>
           </div>
         )}
@@ -170,6 +216,9 @@ export default function HomePage() {
             ))}
           </div>
         )}
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

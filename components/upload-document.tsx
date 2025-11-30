@@ -204,11 +204,9 @@ export function UploadDocument() {
   }
 
   return (
-    <Card>
-      <CardContent className="p-6">
-        <h2 className="text-2xl font-bold mb-6">Upload Document</h2>
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <Card className="border-2 shadow-lg">
+      <CardContent className="p-8">
+        <form onSubmit={handleSubmit} className="space-y-6">
           {/* Title */}
           <div>
             <label htmlFor="title" className="block text-sm font-medium mb-2">
@@ -226,24 +224,61 @@ export function UploadDocument() {
             />
           </div>
 
-          {/* File Upload */}
+          {/* File Upload - Enhanced */}
           <div>
-            <label htmlFor="file-input" className="block text-sm font-medium mb-2">
+            <label htmlFor="file-input" className="block text-sm font-medium mb-3">
               PDF File *
             </label>
-            <input
-              id="file-input"
-              type="file"
-              accept=".pdf,application/pdf"
-              onChange={handleFileChange}
-              disabled={loading}
-              className="block w-full text-sm text-gray-900 dark:text-gray-300 border border-gray-300 dark:border-gray-700 rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-800 focus:outline-none focus:border-primary"
-            />
-            {file && (
-              <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-                Selected: {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
-              </p>
-            )}
+            
+            {/* Custom File Upload Area */}
+            <div className="relative">
+              <input
+                id="file-input"
+                type="file"
+                accept=".pdf,application/pdf"
+                onChange={handleFileChange}
+                disabled={loading}
+                className="hidden"
+              />
+              <label
+                htmlFor="file-input"
+                className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-all ${
+                  file 
+                    ? 'border-green-500 bg-green-500/10 hover:bg-green-500/20' 
+                    : 'border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700'
+                } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                {file ? (
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="flex items-center justify-center w-12 h-12 rounded-full bg-green-500">
+                      <FileCheck className="h-6 w-6 text-white" />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm font-medium text-green-600 dark:text-green-400">
+                        {file.name}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {(file.size / 1024 / 1024).toFixed(2)} MB • Click to change
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10">
+                      <Upload className="h-6 w-6 text-primary" />
+                    </div>
+                    <div className="text-center">
+                      <p className="text-sm font-medium text-foreground">
+                        Click to upload or drag and drop
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        PDF files only (Max 50MB)
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </label>
+            </div>
           </div>
 
           {/* Cost */}
@@ -344,36 +379,38 @@ export function UploadDocument() {
           </div>
 
           {/* Submit Button - Enhanced UX */}
-          <div className="pt-2">
+          <div className="pt-4">
             <Button
               type="submit"
               disabled={loading || !file || !title || !cost}
-              className="w-full h-14 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 bg-gradient-to-r from-primary to-primary/80 hover:from-primary hover:to-primary"
+              className="w-full h-16 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 bg-gradient-to-r from-primary to-primary/80 hover:from-primary hover:to-primary disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  <Loader2 className="mr-2 h-6 w-6 animate-spin" />
                   Uploading Document...
                 </>
               ) : file ? (
                 <>
-                  <FileCheck className="mr-2 h-5 w-5" />
+                  <FileCheck className="mr-2 h-6 w-6" />
                   Publish Document
                 </>
               ) : (
                 <>
-                  <Upload className="mr-2 h-5 w-5" />
+                  <Upload className="mr-2 h-6 w-6" />
                   Upload Document
                 </>
               )}
             </Button>
             
-            {/* Helper Text */}
-            <p className="mt-2 text-xs text-center text-muted-foreground">
-              {!file && !title && 'Please fill in all required fields'}
-              {file && title && cost && !loading && 'Ready to publish! Click to upload your document'}
-              {loading && 'Please wait while we upload your document...'}
-            </p>
+            {/* Helper Text with Icons */}
+            <div className="mt-3 p-3 rounded-lg bg-muted/30">
+              <p className="text-xs text-center text-muted-foreground">
+                {!file && !title && '📝 Please fill in all required fields to continue'}
+                {file && title && cost && !loading && '✅ Ready to publish! Click the button above to upload'}
+                {loading && '⏳ Please wait while we upload your document...'}
+              </p>
+            </div>
           </div>
         </form>
 

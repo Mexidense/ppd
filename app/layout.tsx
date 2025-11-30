@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Sidebar } from "@/components/sidebar";
+import { TopBar } from "@/components/top-bar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { WalletProvider } from "@/components/wallet-provider";
 
@@ -34,9 +35,12 @@ export default function RootLayout({
           <WalletProvider>
             <div className="flex h-screen overflow-hidden">
               <Sidebar />
-              <main className="flex-1 overflow-y-auto">
-                {children}
-              </main>
+              <div className="flex flex-1 flex-col overflow-hidden">
+                <TopBar />
+                <main className="flex-1 overflow-y-auto">
+                  {children}
+                </main>
+              </div>
             </div>
           </WalletProvider>
         </ThemeProvider>

@@ -2,18 +2,29 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Header } from "@/components/header";
-import { DocumentCard, DocumentCardProps } from "@/components/document-card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useWallet } from "@/components/wallet-provider";
-import { Upload } from "lucide-react";
+import { Upload, Eye, Trash2, Loader2 } from "lucide-react";
+import { formatCurrency, formatDate } from "@/lib/utils";
+
+interface Document {
+  id: string;
+  title: string;
+  cost: number;
+  hash: string;
+  address_owner: string;
+  created_at: string;
+  tags?: Array<{ id: string; name: string }>;
+}
 
 export default function PublishedPage() {
   const router = useRouter();
   const { identityKey, address, isConnected } = useWallet();
-  const [documents, setDocuments] = useState<DocumentCardProps[]>([]);
+  const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchPublishedDocuments() {
@@ -48,25 +59,86 @@ export default function PublishedPage() {
     fetchPublishedDocuments();
   }, [isConnected, identityKey, address]);
 
+  const handleDelete = async (docId: string, title: string) => {
+    // Confirm deletion
+    const confirmed = window.confirm(
+      `Are you sure you want to delete "${title}"?\n\nThis action cannot be undone.`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setDeleting(docId);
+
+    try {
+      const response = await fetch(`/api/documents/${docId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to delete document');
+      }
+
+      // Remove from state
+      setDocuments(documents.filter(doc => doc.id !== docId));
+      
+      // Show success message
+      alert('Document deleted successfully!');
+    } catch (err) {
+      console.error('Delete error:', err);
+      alert(`Error: ${err instanceof Error ? err.message : 'Failed to delete document'}`);
+    } finally {
+      setDeleting(null);
+    }
+  };
+
   return (
     <div className="flex flex-col h-full">
-      <Header />
-      
       <div className="flex-1 p-8">
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-8 flex items-center justify-between">
           <div>
-            <h2 className="text-2xl font-bold">Published Documents</h2>
-            <p className="text-muted-foreground">Documents you've uploaded</p>
+            <h2 className="text-3xl font-bold">Published Documents</h2>
+            <p className="mt-1 text-muted-foreground">
+              Manage and track your uploaded content
+            </p>
           </div>
           <Button 
-            className="gap-2"
+            size="lg"
+            className="gap-2 bg-gradient-to-r from-primary to-primary/80 shadow-lg hover:shadow-xl transition-all"
             onClick={() => router.push('/upload')}
             disabled={!isConnected}
           >
-            <Upload className="h-4 w-4" />
-            Upload Document
+            <Upload className="h-5 w-5" />
+            Upload New Document
           </Button>
         </div>
+        
+        {/* Stats Summary */}
+        {!loading && !error && documents.length > 0 && (
+          <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="rounded-lg border border-border bg-card p-6">
+              <p className="text-sm font-medium text-muted-foreground">Total Documents</p>
+              <p className="mt-2 text-3xl font-bold">{documents.length}</p>
+            </div>
+            <div className="rounded-lg border border-border bg-card p-6">
+              <p className="text-sm font-medium text-muted-foreground">Total Revenue</p>
+              <p className="mt-2 text-3xl font-bold">
+                {documents.reduce((sum, doc) => sum + (doc.cost || 0), 0).toLocaleString()} sats
+              </p>
+            </div>
+            <div className="rounded-lg border border-border bg-card p-6">
+              <p className="text-sm font-medium text-muted-foreground">Avg. Price</p>
+              <p className="mt-2 text-3xl font-bold">
+                {documents.length > 0 
+                  ? Math.round(documents.reduce((sum, doc) => sum + (doc.cost || 0), 0) / documents.length)
+                  : 0
+                } sats
+              </p>
+            </div>
+          </div>
+        )}
 
         {!isConnected && !loading && (
           <div className="flex h-full items-center justify-center">
@@ -116,10 +188,117 @@ export default function PublishedPage() {
         )}
 
         {!loading && !error && documents.length > 0 && (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {documents.map((doc) => (
-              <DocumentCard key={doc.id} {...doc} />
-            ))}
+          <div className="rounded-lg border border-border bg-card">
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-border bg-muted/50">
+                    <th className="px-6 py-4 text-left text-sm font-semibold">Title</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">Tags</th>
+                    <th className="px-6 py-4 text-right text-sm font-semibold">Price</th>
+                    <th className="px-6 py-4 text-left text-sm font-semibold">Published</th>
+                    <th className="px-6 py-4 text-right text-sm font-semibold">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {documents.map((doc, index) => (
+                    <tr 
+                      key={doc.id}
+                      className={`border-b border-border last:border-0 hover:bg-muted/30 transition-colors ${
+                        index % 2 === 0 ? 'bg-background' : 'bg-muted/10'
+                      }`}
+                    >
+                      {/* Title */}
+                      <td className="px-6 py-4">
+                        <div>
+                          <p className="font-medium text-foreground">{doc.title}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {doc.hash.substring(0, 8)}...
+                          </p>
+                        </div>
+                      </td>
+
+                      {/* Tags */}
+                      <td className="px-6 py-4">
+                        <div className="flex flex-wrap gap-1">
+                          {doc.tags && doc.tags.length > 0 ? (
+                            doc.tags.slice(0, 3).map((tag) => (
+                              <Badge 
+                                key={tag.id} 
+                                variant="secondary"
+                                className="text-xs"
+                              >
+                                {tag.name}
+                              </Badge>
+                            ))
+                          ) : (
+                            <span className="text-xs text-muted-foreground">No tags</span>
+                          )}
+                          {doc.tags && doc.tags.length > 3 && (
+                            <Badge variant="outline" className="text-xs">
+                              +{doc.tags.length - 3}
+                            </Badge>
+                          )}
+                        </div>
+                      </td>
+
+                      {/* Price */}
+                      <td className="px-6 py-4 text-right">
+                        <div className="font-semibold text-foreground">
+                          {formatCurrency(doc.cost)}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          ≈ {(doc.cost / 100000000).toFixed(6)} BSV
+                        </div>
+                      </td>
+
+                      {/* Date */}
+                      <td className="px-6 py-4">
+                        <div className="text-sm text-muted-foreground">
+                          {formatDate(doc.created_at)}
+                        </div>
+                      </td>
+
+                      {/* Actions */}
+                      <td className="px-6 py-4">
+                        <div className="flex items-center justify-end gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="gap-2"
+                            onClick={() => router.push(`/view/${doc.id}`)}
+                            disabled={deleting === doc.id}
+                          >
+                            <Eye className="h-4 w-4" />
+                            View
+                          </Button>
+                          
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            className="gap-2"
+                            onClick={() => handleDelete(doc.id, doc.title)}
+                            disabled={deleting === doc.id}
+                          >
+                            {deleting === doc.id ? (
+                              <>
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                                Deleting...
+                              </>
+                            ) : (
+                              <>
+                                <Trash2 className="h-4 w-4" />
+                                Delete
+                              </>
+                            )}
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         )}
       </div>
