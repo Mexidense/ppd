@@ -44,6 +44,14 @@ export default function ViewDocumentPage() {
     async function loadDocument() {
       console.log('Wallet state:', { isConnected, isConnecting, identityKey, address });
 
+      // Check if params is available
+      if (!params || !params.id) {
+        console.error('No document ID available');
+        setError("invalid_document_id");
+        setLoading(false);
+        return;
+      }
+
       // Check if wallet is connected
       const walletAddress = identityKey || address;
       
@@ -115,7 +123,7 @@ export default function ViewDocumentPage() {
     }
 
     loadDocument();
-  }, [params.id, walletCheckComplete, isConnected, identityKey, address]);
+  }, [params, walletCheckComplete, isConnected, identityKey, address]);
 
   const handleDownload = () => {
     if (pdfUrl && documentMetadata) {

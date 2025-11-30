@@ -1,4 +1,4 @@
-import { PrivateKey, PublicKey, Hash, BigNumber } from "@bsv/sdk";
+import { PrivateKey, PublicKey, Hash, BigNumber, Signature } from "@bsv/sdk";
 
 /**
  * Utility functions for BSV operations
@@ -39,8 +39,15 @@ export function deriveFromPrivateKey(privateKeyString: string) {
 export function signMessage(privateKeyString: string, message: string): string {
   const privateKey = PrivateKey.fromString(privateKeyString);
   const messageBuffer = Buffer.from(message, 'utf8');
-  const signature = privateKey.sign(messageBuffer);
-  return signature.toString('hex');
+  const signature = privateKey.sign(Array.from(messageBuffer));
+  
+  // Handle both string and number array returns
+  if (typeof signature === 'string') {
+    return signature;
+  } else if (Array.isArray(signature)) {
+    return Buffer.from(signature).toString('hex');
+  }
+  return String(signature);
 }
 
 /**
@@ -54,9 +61,9 @@ export function verifySignature(
   try {
     const publicKey = PublicKey.fromString(publicKeyString);
     const messageBuffer = Buffer.from(message, 'utf8');
-    const signatureBuffer = Buffer.from(signatureHex, 'hex');
+    const signature = Signature.fromDER(signatureHex, 'hex');
     
-    return publicKey.verify(messageBuffer, signatureBuffer);
+    return publicKey.verify(Array.from(messageBuffer), signature);
   } catch (error) {
     console.error("Failed to verify signature:", error);
     return false;
@@ -68,8 +75,15 @@ export function verifySignature(
  */
 export function sha256Hash(data: string): string {
   const buffer = Buffer.from(data, 'utf8');
-  const hash = Hash.sha256(buffer);
-  return hash.toString('hex');
+  const hash = Hash.sha256(Array.from(buffer));
+  
+  // Handle both string and number array returns
+  if (typeof hash === 'string') {
+    return hash;
+  } else if (Array.isArray(hash)) {
+    return Buffer.from(hash).toString('hex');
+  }
+  return String(hash);
 }
 
 /**
@@ -77,9 +91,24 @@ export function sha256Hash(data: string): string {
  */
 export function doubleSha256Hash(data: string): string {
   const buffer = Buffer.from(data, 'utf8');
-  const hash1 = Hash.sha256(buffer);
-  const hash2 = Hash.sha256(hash1);
-  return hash2.toString('hex');
+  const hash1 = Hash.sha256(Array.from(buffer));
+  
+  // Convert hash1 to number array for second hash
+  const hash1Array = typeof hash1 === 'string' 
+    ? Array.from(Buffer.from(hash1, 'hex'))
+    : Array.isArray(hash1) 
+    ? hash1 
+    : Array.from(Buffer.from(String(hash1)));
+    
+  const hash2 = Hash.sha256(hash1Array);
+  
+  // Handle both string and number array returns
+  if (typeof hash2 === 'string') {
+    return hash2;
+  } else if (Array.isArray(hash2)) {
+    return Buffer.from(hash2).toString('hex');
+  }
+  return String(hash2);
 }
 
 /**

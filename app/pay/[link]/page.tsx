@@ -25,13 +25,13 @@ export default function PaymentLinkPage() {
   useEffect(() => {
     async function loadDocument() {
       try {
-        const hash = params.link as string;
-        
-        if (!hash) {
+        if (!params || !params.link) {
           setError("Invalid payment link");
           setLoading(false);
           return;
         }
+
+        const hash = params.link as string;
 
         // Fetch document by hash
         const response = await fetch(`/api/documents/link/${hash}`);
@@ -55,7 +55,7 @@ export default function PaymentLinkPage() {
     }
 
     loadDocument();
-  }, [params.link]);
+  }, [params]);
 
   if (loading) {
     return (

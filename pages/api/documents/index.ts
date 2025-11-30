@@ -36,13 +36,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         filters.tags = Array.isArray(tags) ? tags as string[] : [tags as string];
       }
 
-      const { documents, count, error } = await searchDocuments(filters);
+      const { data: documents, error } = await searchDocuments(filters);
 
       if (error) {
         return res.status(500).json({ error: 'Failed to search documents', details: error });
       }
 
-      return res.status(200).json({ documents, count });
+      return res.status(200).json({ documents, count: documents?.length || 0 });
     }
 
     // Otherwise return all documents
