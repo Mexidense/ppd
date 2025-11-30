@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useWallet } from "@/components/wallet-provider";
-import { Upload, Eye, Trash2, Loader2 } from "lucide-react";
+import { Upload, Eye, Trash2, Loader2, Link2, Check } from "lucide-react";
 import { formatCurrency, formatDate } from "@/lib/utils";
 
 interface Document {
@@ -25,6 +25,8 @@ export default function PublishedPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deleting, setDeleting] = useState<string | null>(null);
+  const [generatingLink, setGeneratingLink] = useState<string | null>(null);
+  const [copiedLink, setCopiedLink] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchPublishedDocuments() {
@@ -91,6 +93,35 @@ export default function PublishedPage() {
       alert(`Error: ${err instanceof Error ? err.message : 'Failed to delete document'}`);
     } finally {
       setDeleting(null);
+    }
+  };
+
+  const handleCopyPaymentLink = async (docId: string) => {
+    setGeneratingLink(docId);
+
+    try {
+      const response = await fetch(`/api/documents/${docId}/payment-link`, {
+        method: 'POST',
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to generate payment link');
+      }
+
+      const data = await response.json();
+      
+      // Copy to clipboard
+      await navigator.clipboard.writeText(data.full_url);
+      
+      // Show copied state
+      setCopiedLink(docId);
+      setTimeout(() => setCopiedLink(null), 2000);
+    } catch (err) {
+      console.error('Payment link error:', err);
+      alert(`Error: ${err instanceof Error ? err.message : 'Failed to generate payment link'}`);
+    } finally {
+      setGeneratingLink(null);
     }
   };
 
@@ -268,9 +299,37 @@ export default function PublishedPage() {
                             className="gap-2"
                             onClick={() => router.push(`/view/${doc.id}`)}
                             disabled={deleting === doc.id}
+                            aria-label={`View ${doc.title}`}
                           >
-                            <Eye className="h-4 w-4" />
+                            <Eye className="h-4 w-4" aria-hidden="true" />
                             View
+                          </Button>
+
+                          <Button
+                            size="sm"
+                            variant={copiedLink === doc.id ? "default" : "outline"}
+                            className="gap-2"
+                            onClick={() => handleCopyPaymentLink(doc.id)}
+                            disabled={generatingLink === doc.id || deleting === doc.id}
+                            aria-label="Copy payment link"
+                            title="Generate and copy shareable payment link"
+                          >
+                            {generatingLink === doc.id ? (
+                              <>
+                                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                                <span className="sr-only">Generating link...</span>
+                              </>
+                            ) : copiedLink === doc.id ? (
+                              <>
+                                <Check className="h-4 w-4" aria-hidden="true" />
+                                Copied
+                              </>
+                            ) : (
+                              <>
+                                <Link2 className="h-4 w-4" aria-hidden="true" />
+                                Copy Link
+                              </>
+                            )}
                           </Button>
                           
                           <Button
@@ -279,15 +338,16 @@ export default function PublishedPage() {
                             className="gap-2"
                             onClick={() => handleDelete(doc.id, doc.title)}
                             disabled={deleting === doc.id}
+                            aria-label={`Delete ${doc.title}`}
                           >
                             {deleting === doc.id ? (
                               <>
-                                <Loader2 className="h-4 w-4 animate-spin" />
+                                <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                                 Deleting...
                               </>
                             ) : (
                               <>
-                                <Trash2 className="h-4 w-4" />
+                                <Trash2 className="h-4 w-4" aria-hidden="true" />
                                 Delete
                               </>
                             )}

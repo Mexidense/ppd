@@ -19,6 +19,9 @@ export interface DocumentCardProps {
   created_at: string;
   isOwned?: boolean;
   isPurchased?: boolean;
+  transactionId?: string;
+  purchaseDate?: string;
+  redirectToViewerOnPurchase?: boolean;
 }
 
 export function DocumentCard({
@@ -29,11 +32,20 @@ export function DocumentCard({
   created_at,
   isOwned = false,
   isPurchased = false,
+  transactionId,
+  purchaseDate,
+  redirectToViewerOnPurchase = false,
 }: DocumentCardProps) {
   const { wallet, identityKey } = useWallet();
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<'success' | 'error' | 'info'>('info');
+
+  // Format transaction ID to show first 8 and last 4 characters
+  const formatTxId = (txId: string) => {
+    if (!txId || txId.length <= 12) return txId;
+    return `${txId.slice(0, 8)}...${txId.slice(-4)}`;
+  };
 
   const showMessage = (text: string, type: 'success' | 'error' | 'info') => {
     setMessage(text);
@@ -157,12 +169,21 @@ export function DocumentCard({
       const data = await response.json();
 
       if (response.ok) {
-        showMessage(`Purchase successful! ${data.amountPaid} sats paid. Reloading...`, 'success');
-        
-        // Reload the page after a short delay to show the success message
-        setTimeout(() => {
-          window.location.reload();
-        }, 1500);
+        if (redirectToViewerOnPurchase) {
+          showMessage(`Purchase successful! ${data.amountPaid} sats paid. Opening document...`, 'success');
+          
+          // Redirect to viewer page after a short delay
+          setTimeout(() => {
+            window.location.href = `/view/${id}`;
+          }, 1500);
+        } else {
+          showMessage(`Purchase successful! ${data.amountPaid} sats paid. Reloading...`, 'success');
+          
+          // Reload the page after a short delay to show the success message
+          setTimeout(() => {
+            window.location.reload();
+          }, 1500);
+        }
       } else {
         showMessage(data.error || 'Purchase failed', 'error');
         setLoading(false);
@@ -294,10 +315,49 @@ export function DocumentCard({
         </div>
       </div>
 
-      <footer className="bg-muted/50 border-t border-border p-4 text-center">
-        <p className="w-full text-sm font-medium text-muted-foreground">
-          <span className="font-normal">Published:</span> <time dateTime={created_at}>{formatDate(created_at)}</time>
-        </p>
+      <footer className="bg-muted/50 border-t border-border p-4">
+        <div className="flex flex-col gap-2">
+          <p className="w-full text-sm font-medium text-muted-foreground text-center">
+            <span className="font-normal">Published:</span> <time dateTime={created_at}>{formatDate(created_at)}</time>
+          </p>
+          
+          {/* Purchase information for purchased documents */}
+          {isPurchased && !isOwned && (
+            <>
+              {/* Purchase Date */}
+              {purchaseDate && (
+                <p className="w-full text-sm font-medium text-green-600 dark:text-green-400 text-center">
+                  <span className="font-normal">Purchased:</span> <time dateTime={purchaseDate}>{formatDate(purchaseDate)}</time>
+                </p>
+              )}
+              
+              {/* Transaction ID link */}
+              {transactionId && (
+                <div className="flex items-center justify-center gap-2 text-xs">
+                  <span className="text-muted-foreground">Transaction:</span>
+                  <a
+                    href={`https://whatsonchain.com/tx/${transactionId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono text-primary hover:text-primary/80 underline decoration-primary/30 hover:decoration-primary transition-colors inline-flex items-center gap-1"
+                    aria-label={`View transaction ${transactionId} on WhatsOnChain`}
+                  >
+                    {formatTxId(transactionId)}
+                    <svg 
+                      className="h-3 w-3" 
+                      fill="none" 
+                      viewBox="0 0 24 24" 
+                      stroke="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                </div>
+              )}
+            </>
+          )}
+        </div>
       </footer>
     </article>
   );

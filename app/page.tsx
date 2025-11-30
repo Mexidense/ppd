@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 type DocumentWithStatus = DocumentCardProps & {
   isOwned?: boolean;
   isPurchased?: boolean;
+  transactionId?: string;
+  purchaseDate?: string;
 };
 
 export default function HomePage() {
@@ -31,26 +33,35 @@ export default function HomePage() {
         if (isConnected && (identityKey || address)) {
           const userAddress = identityKey || address;
           
-          // Fetch user's purchases
-          let purchasedDocIds: Set<string> = new Set();
+          // Fetch user's purchases with transaction IDs and dates
+          let purchaseMap: Map<string, { txId: string; date: string }> = new Map();
           try {
             const purchasesResponse = await fetch(`/api/purchases/buyer/${userAddress}`);
             if (purchasesResponse.ok) {
               const purchasesData = await purchasesResponse.json();
-              purchasedDocIds = new Set(
-                (purchasesData.purchases || []).map((p: any) => p.doc_id)
-              );
+              // Map doc_id to transaction_id and purchase date
+              (purchasesData.purchases || []).forEach((p: any) => {
+                purchaseMap.set(p.doc_id, {
+                  txId: p.transaction_id,
+                  date: p.created_at,
+                });
+              });
             }
           } catch (err) {
             console.error('Failed to fetch purchases:', err);
           }
           
-          // Mark owned and purchased documents
-          const docsWithStatus = allDocs.map((doc: any) => ({
-            ...doc,
-            isOwned: doc.address_owner === userAddress,
-            isPurchased: purchasedDocIds.has(doc.id),
-          }));
+          // Mark owned and purchased documents with transaction IDs and dates
+          const docsWithStatus = allDocs.map((doc: any) => {
+            const purchaseData = purchaseMap.get(doc.id);
+            return {
+              ...doc,
+              isOwned: doc.address_owner === userAddress,
+              isPurchased: purchaseMap.has(doc.id),
+              transactionId: purchaseData?.txId,
+              purchaseDate: purchaseData?.date,
+            };
+          });
           
           setDocuments(docsWithStatus);
         } else {
@@ -225,6 +236,8 @@ export default function HomePage() {
                 {...doc}
                 isOwned={doc.isOwned}
                 isPurchased={doc.isPurchased}
+                transactionId={doc.transactionId}
+                purchaseDate={doc.purchaseDate}
               />
             ))}
           </div>

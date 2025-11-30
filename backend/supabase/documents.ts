@@ -87,18 +87,39 @@ export async function getDocumentById(
 }
 
 /**
- * Get a document by hash
+ * Get a document by hash with tags
  */
 export async function getDocumentByHash(
   hash: string
 ): Promise<{ data: Document | null; error: any }> {
   const { data, error } = await supabase
     .from('documents')
-    .select('*')
+    .select(`
+      *,
+      document_tags (
+        tags (
+          id,
+          name
+        )
+      )
+    `)
     .eq('hash', hash)
     .single();
 
-  return { data, error };
+  if (error || !data) {
+    return { data, error };
+  }
+
+  // Transform to include tags array
+  const document = {
+    ...data,
+    tags: data.document_tags?.map((dt: any) => dt.tags).filter(Boolean) || []
+  };
+
+  // Remove document_tags from the response
+  delete (document as any).document_tags;
+
+  return { data: document as Document, error: null };
 }
 
 /**
@@ -217,5 +238,24 @@ export async function getDocumentsByOwner(
   documents?.forEach((doc: any) => delete doc.document_tags);
 
   return { data: documents, error: null };
+}
+
+/**
+ * Get document hash for payment link (just returns the hash from document ID)
+ */
+export async function getDocumentHash(
+  docId: string
+): Promise<{ data: { hash: string } | null; error: any }> {
+  const { data, error } = await supabase
+    .from('documents')
+    .select('hash')
+    .eq('id', docId)
+    .single();
+
+  if (error || !data) {
+    return { data: null, error };
+  }
+
+  return { data: { hash: data.hash }, error: null };
 }
 
