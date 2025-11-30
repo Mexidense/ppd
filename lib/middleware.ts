@@ -8,8 +8,8 @@ import { Request, Response, NextFunction } from 'express';
 export interface PaymentRequest extends NextApiRequest {
   payment?: {
     satoshisPaid: number;
-    derivationPrefix: string;
-    derivationSuffix: string;
+    derivationPrefix?: string;
+    derivationSuffix?: string;
     accepted: boolean;
     tx: any;
   };
