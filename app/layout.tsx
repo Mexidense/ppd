@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Sidebar } from "@/components/sidebar";
-import { TopBar } from "@/components/top-bar";
 import { ThemeProvider } from "@/components/theme-provider";
 import { WalletProvider } from "@/components/wallet-provider";
+import { LayoutContent } from "@/components/layout-content";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,15 +37,7 @@ export default function RootLayout({
               Skip to main content
             </a>
             
-            <div className="flex h-screen overflow-hidden">
-              <Sidebar />
-              <div className="flex flex-1 flex-col overflow-hidden">
-                <TopBar />
-                <main id="main-content" className="flex-1 overflow-y-auto" tabIndex={-1}>
-                  {children}
-                </main>
-              </div>
-            </div>
+            <LayoutContent>{children}</LayoutContent>
           </WalletProvider>
         </ThemeProvider>
       </body>

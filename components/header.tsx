@@ -13,8 +13,8 @@ export function Header() {
   return (
     <header className="flex h-16 items-center justify-between border-b border-border px-8">
       <div className="flex items-center gap-6">
-        <h1 className="text-2xl font-bold uppercase tracking-wider">
-          PPD
+        <h1 className="text-2xl font-bold tracking-wide">
+          Pay per document
         </h1>
         
         <nav className="flex items-center gap-2">
