@@ -1,30 +1,38 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Header } from "@/components/header";
 import { DocumentCard, DocumentCardProps } from "@/components/document-card";
 import { Button } from "@/components/ui/button";
+import { useWallet } from "@/components/wallet-provider";
 import { Upload } from "lucide-react";
 
 export default function PublishedPage() {
+  const router = useRouter();
+  const { identityKey, address, isConnected } = useWallet();
   const [documents, setDocuments] = useState<DocumentCardProps[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchPublishedDocuments() {
+      if (!isConnected || (!identityKey && !address)) {
+        setLoading(false);
+        return;
+      }
+
       try {
-        // TODO: Replace with actual wallet address from Web3 context
-        const walletAddress = "0x742d35Cc6634C0532925a3b844Bc9e7595f0bEb";
+        const walletAddress = identityKey || address || "";
         
-        // For now, we'll filter all documents by address_owner
+        // Fetch all documents and filter by owner
         const response = await fetch("/api/documents");
         if (!response.ok) {
           throw new Error("Failed to fetch documents");
         }
         const data = await response.json();
         
-        // Filter documents by owner (in a real app, this should be done server-side)
+        // Filter documents by owner
         const ownedDocs = (data.documents || []).filter(
           (doc: any) => doc.address_owner === walletAddress
         );
@@ -38,7 +46,7 @@ export default function PublishedPage() {
     }
 
     fetchPublishedDocuments();
-  }, []);
+  }, [isConnected, identityKey, address]);
 
   return (
     <div className="flex flex-col h-full">
@@ -50,13 +58,28 @@ export default function PublishedPage() {
             <h2 className="text-2xl font-bold">Published Documents</h2>
             <p className="text-muted-foreground">Documents you've uploaded</p>
           </div>
-          <Button className="gap-2">
+          <Button 
+            className="gap-2"
+            onClick={() => router.push('/upload')}
+            disabled={!isConnected}
+          >
             <Upload className="h-4 w-4" />
             Upload Document
           </Button>
         </div>
 
-        {loading && (
+        {!isConnected && !loading && (
+          <div className="flex h-full items-center justify-center">
+            <div className="text-center">
+              <p className="text-xl text-muted-foreground">Wallet not connected</p>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Please connect your wallet to view your published documents
+              </p>
+            </div>
+          </div>
+        )}
+
+        {loading && isConnected && (
           <div className="flex h-full items-center justify-center">
             <div className="text-center">
               <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
@@ -80,7 +103,11 @@ export default function PublishedPage() {
               <p className="mt-2 text-sm text-muted-foreground">
                 Upload your first document to start selling
               </p>
-              <Button className="mt-4 gap-2">
+              <Button 
+                className="mt-4 gap-2"
+                onClick={() => router.push('/upload')}
+                disabled={!isConnected}
+              >
                 <Upload className="h-4 w-4" />
                 Upload Document
               </Button>
