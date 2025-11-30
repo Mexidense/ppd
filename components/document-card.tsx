@@ -234,7 +234,7 @@ export function DocumentCard({
                 {formatCurrency(cost)}
               </span>
               <span className="text-xs sm:text-sm text-muted-foreground">
-                ≈ {(cost / 100000000).toFixed(6)} BSV
+                ≈ {(cost / 100000000).toFixed(8)} BSV
               </span>
             </div>
             

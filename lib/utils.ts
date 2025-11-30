@@ -25,6 +25,6 @@ export function formatDate(date: string | Date): string {
 }
 
 export function formatCurrency(amount: number, currency: string = "SAT"): string {
-  return `${amount.toFixed(2)} ${currency}`;
+  return `${Math.round(amount).toLocaleString()} ${currency}`;
 }
 

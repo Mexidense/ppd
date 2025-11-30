@@ -311,7 +311,7 @@ export default function PublishedPage() {
                           {formatCurrency(doc.cost)}
                         </div>
                         <div className="text-xs text-muted-foreground hidden sm:block">
-                          ≈ {(doc.cost / 100000000).toFixed(6)} BSV
+                          ≈ {(doc.cost / 100000000).toFixed(8)} BSV
                         </div>
                       </td>
 

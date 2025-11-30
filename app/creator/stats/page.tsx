@@ -189,7 +189,7 @@ export default function CreatorStatsPage() {
                   {totalRevenue.toLocaleString()} sats
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  ≈ {(totalRevenue / 100000000).toFixed(6)} BSV
+                  ≈ {(totalRevenue / 100000000).toFixed(8)} BSV
                 </p>
               </CardContent>
             </Card>
