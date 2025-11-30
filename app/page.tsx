@@ -78,16 +78,16 @@ export default function HomePage() {
     <div className="flex flex-col h-full">
       <div className="flex-1 p-8">
         {/* Page Header */}
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold">Documents</h2>
+        <header className="mb-8">
+          <h1 className="text-3xl font-bold">Documents</h1>
           <p className="text-sm text-muted-foreground mt-1">
             Browse, purchase, and manage your document collection
           </p>
-        </div>
+        </header>
 
         {/* Tabs Navigation */}
-        <div className="mb-8">
-          <div className="flex gap-2">
+        <nav className="mb-8" aria-label="Document filters" role="tablist">
+          <div className="flex gap-2" role="tablist">
             <button
               onClick={() => setFilter('all')}
               className={`px-6 py-3.5 font-semibold text-sm transition-all rounded-t-lg relative ${
@@ -95,6 +95,10 @@ export default function HomePage() {
                   ? 'text-primary-foreground bg-gradient-to-br from-primary via-primary to-primary/90 border-2 border-b-0 border-primary shadow-[0_-4px_12px_rgba(0,0,0,0.15),0_8px_16px_rgba(var(--primary-rgb),0.4)] z-10'
                   : 'text-muted-foreground hover:text-foreground bg-muted/30 border-2 border-transparent hover:border-border/50 hover:bg-muted/50 hover:shadow-md'
               }`}
+              role="tab"
+              aria-selected={filter === 'all'}
+              aria-controls="marketplace-panel"
+              id="marketplace-tab"
             >
               <div className="flex items-center gap-2">
                 <span>🏪 Marketplace</span>
@@ -116,6 +120,10 @@ export default function HomePage() {
                     ? 'text-primary-foreground bg-gradient-to-br from-primary via-primary to-primary/90 border-2 border-b-0 border-primary shadow-[0_-4px_12px_rgba(0,0,0,0.15),0_8px_16px_rgba(var(--primary-rgb),0.4)] z-10'
                     : 'text-muted-foreground hover:text-foreground bg-muted/30 border-2 border-transparent hover:border-border/50 hover:bg-muted/50 hover:shadow-md'
                 }`}
+                role="tab"
+                aria-selected={filter === 'purchased'}
+                aria-controls="library-panel"
+                id="library-tab"
               >
                 <div className="flex items-center gap-2">
                   <span>📚 My Library</span>
@@ -132,7 +140,12 @@ export default function HomePage() {
           </div>
           
           {/* Content Area with Border */}
-          <div className="border-2 border-primary rounded-lg rounded-tl-none p-6 bg-background shadow-[0_4px_20px_rgba(0,0,0,0.1)]">
+          <section 
+            className="border-2 border-primary rounded-lg rounded-tl-none p-6 bg-background shadow-[0_4px_20px_rgba(0,0,0,0.1)]"
+            role="tabpanel"
+            id={filter === 'all' ? 'marketplace-panel' : 'library-panel'}
+            aria-labelledby={filter === 'all' ? 'marketplace-tab' : 'library-tab'}
+          >
             {/* Tab Content Description */}
             {filter === 'all' && (
               <div className="mb-4">
@@ -153,16 +166,16 @@ export default function HomePage() {
             <div className="-mx-6 -mb-6 px-6 pb-6">
 
         {loading && (
-          <div className="flex h-full items-center justify-center">
+          <div className="flex h-full items-center justify-center" role="status" aria-live="polite">
             <div className="text-center">
-              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent"></div>
+              <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-primary border-r-transparent" aria-hidden="true"></div>
               <p className="mt-4 text-muted-foreground">Loading documents...</p>
             </div>
           </div>
         )}
 
         {error && (
-          <div className="flex h-full items-center justify-center">
+          <div className="flex h-full items-center justify-center" role="alert">
             <div className="text-center">
               <p className="text-destructive">Error: {error}</p>
             </div>
@@ -205,7 +218,7 @@ export default function HomePage() {
         )}
 
         {!loading && !error && filteredDocuments.length > 0 && (
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3" role="list">
             {filteredDocuments.map((doc) => (
               <DocumentCard 
                 key={doc.id} 
@@ -217,8 +230,8 @@ export default function HomePage() {
           </div>
         )}
             </div>
-          </div>
-        </div>
+          </section>
+        </nav>
       </div>
     </div>
   );

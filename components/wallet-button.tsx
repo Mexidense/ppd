@@ -19,10 +19,13 @@ export function WalletButton() {
 
   if (isConnected && identityKey) {
     return (
-      <div className="flex items-center gap-2">        
+      <div className="flex items-center gap-2" role="status" aria-live="polite">        
         {/* Wallet Connected */}
-        <div className="flex items-center gap-2 rounded-md border border-green-600 bg-green-600/10 px-3 py-1.5">
-          <Check className="h-4 w-4 text-green-500" />
+        <div 
+          className="flex items-center gap-2 rounded-md border border-green-600 bg-green-600/10 px-3 py-1.5"
+          aria-label={`Wallet connected: ${formatKey(identityKey)}`}
+        >
+          <Check className="h-4 w-4 text-green-500" aria-hidden="true" />
           <span className="text-sm font-medium text-green-500">
             {formatKey(identityKey)}
           </span>
@@ -34,9 +37,10 @@ export function WalletButton() {
           size="icon"
           onClick={disconnect}
           className="border-border"
-          title="Disconnect wallet"
+          aria-label="Disconnect wallet"
         >
-          <LogOut className="h-4 w-4" />
+          <LogOut className="h-4 w-4" aria-hidden="true" />
+          <span className="sr-only">Disconnect wallet</span>
         </Button>
       </div>
     );
@@ -48,22 +52,28 @@ export function WalletButton() {
         onClick={connect}
         disabled={isConnecting}
         className="gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+        aria-label={isConnecting ? "Connecting to wallet" : "Connect wallet"}
       >
         {isConnecting ? (
           <>
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
             <span>Connecting...</span>
           </>
         ) : (
           <>
-            <Wallet className="h-4 w-4" />
+            <Wallet className="h-4 w-4" aria-hidden="true" />
             <span>Connect Wallet</span>
           </>
         )}
       </Button>
       {error && (
-        <div className="flex items-center gap-1 text-xs text-red-500" title={error}>
-          <AlertCircle className="h-3 w-3" />
+        <div 
+          className="flex items-center gap-1 text-xs text-red-500" 
+          role="alert"
+          aria-label={`Wallet error: ${error}`}
+        >
+          <AlertCircle className="h-3 w-3" aria-hidden="true" />
+          <span className="sr-only">{error}</span>
         </div>
       )}
     </div>

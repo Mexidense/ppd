@@ -206,39 +206,47 @@ export function UploadDocument() {
   return (
     <Card className="border-2 shadow-lg">
       <CardContent className="p-8">
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6" aria-label="Upload document form">
           {/* Title */}
           <div>
             <label htmlFor="title" className="block text-sm font-medium mb-2">
-              Title *
+              Title <span aria-label="required">*</span>
             </label>
             <input
               id="title"
+              name="title"
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               disabled={loading}
               placeholder="Enter document title"
-              className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+              className="block w-full px-3 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring dark:bg-gray-800 dark:border-gray-700 dark:text-white"
               required
+              aria-required="true"
+              aria-describedby="title-help"
             />
+            <span id="title-help" className="sr-only">Enter a descriptive title for your document</span>
           </div>
 
           {/* File Upload - Enhanced */}
           <div>
             <label htmlFor="file-input" className="block text-sm font-medium mb-3">
-              PDF File *
+              PDF File <span aria-label="required">*</span>
             </label>
             
             {/* Custom File Upload Area */}
             <div className="relative">
               <input
                 id="file-input"
+                name="file"
                 type="file"
                 accept=".pdf,application/pdf"
                 onChange={handleFileChange}
                 disabled={loading}
                 className="hidden"
+                required
+                aria-required="true"
+                aria-describedby="file-help"
               />
               <label
                 htmlFor="file-input"
@@ -247,10 +255,13 @@ export function UploadDocument() {
                     ? 'border-green-500 bg-green-500/10 hover:bg-green-500/20' 
                     : 'border-gray-300 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700'
                 } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                role="button"
+                tabIndex={0}
+                aria-label={file ? `Selected file: ${file.name}. Click to change` : "Upload PDF file"}
               >
                 {file ? (
                   <div className="flex flex-col items-center gap-2">
-                    <div className="flex items-center justify-center w-12 h-12 rounded-full bg-green-500">
+                    <div className="flex items-center justify-center w-12 h-12 rounded-full bg-green-500" aria-hidden="true">
                       <FileCheck className="h-6 w-6 text-white" />
                     </div>
                     <div className="text-center">
@@ -264,7 +275,7 @@ export function UploadDocument() {
                   </div>
                 ) : (
                   <div className="flex flex-col items-center gap-2">
-                    <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10">
+                    <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10" aria-hidden="true">
                       <Upload className="h-6 w-6 text-primary" />
                     </div>
                     <div className="text-center">
@@ -278,27 +289,33 @@ export function UploadDocument() {
                   </div>
                 )}
               </label>
+              <span id="file-help" className="sr-only">Upload a PDF file, maximum size 50 megabytes</span>
             </div>
           </div>
 
           {/* Cost */}
           <div>
             <label htmlFor="cost" className="block text-sm font-medium mb-2">
-              Cost (Satoshis) *
+              Cost (Satoshis) <span aria-label="required">*</span>
             </label>
             <input
               id="cost"
+              name="cost"
               type="number"
               value={cost}
               onChange={(e) => setCost(e.target.value)}
               disabled={loading}
               placeholder="1000"
               min="0"
-              className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg focus:outline-none focus:border-primary dark:bg-gray-800 dark:text-white"
+              step="1"
+              className="block w-full px-3 py-2 border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring dark:bg-gray-800 dark:border-gray-700 dark:text-white"
               required
+              aria-required="true"
+              aria-describedby="cost-help cost-conversion"
             />
+            <span id="cost-help" className="sr-only">Enter the cost in satoshis for accessing this document</span>
             {cost && (
-              <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+              <p id="cost-conversion" className="mt-1 text-sm text-gray-600 dark:text-gray-400" aria-live="polite">
                 ≈ {(parseInt(cost) / 100000000).toFixed(8)} BSV
               </p>
             )}
@@ -311,13 +328,18 @@ export function UploadDocument() {
             </label>
             
             {/* Tag Input Box with Selected Tags Inside */}
-            <div className="min-h-[100px] p-3 border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20">
+            <div 
+              className="min-h-[100px] p-3 border border-input rounded-lg bg-gray-50 dark:bg-gray-800 transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-ring"
+              role="group"
+              aria-label="Document tags"
+            >
               {/* Selected Tags as Boxes with Different Colors */}
-              <div className="flex flex-wrap gap-2 mb-2">
+              <div className="flex flex-wrap gap-2 mb-2" role="list" aria-label="Selected tags">
                 {selectedTags.map((tag, index) => (
                   <div
                     key={tag}
                     className={`inline-flex items-center gap-1.5 px-3 py-1.5 ${getTagColor(tag, index)} text-white rounded-md text-sm font-medium shadow-sm transition-all`}
+                    role="listitem"
                   >
                     <span>{tag}</span>
                     <button
@@ -325,9 +347,9 @@ export function UploadDocument() {
                       onClick={() => handleRemoveTag(tag)}
                       className="ml-0.5 hover:bg-white/25 rounded-full p-0.5 transition-colors"
                       disabled={loading}
-                      aria-label={`Remove ${tag}`}
+                      aria-label={`Remove tag ${tag}`}
                     >
-                      <X className="h-3.5 w-3.5" />
+                      <X className="h-3.5 w-3.5" aria-hidden="true" />
                     </button>
                   </div>
                 ))}
@@ -335,6 +357,7 @@ export function UploadDocument() {
                 {/* Inline Input */}
                 <input
                   id="tags"
+                  name="tags"
                   type="text"
                   value={newTagInput}
                   onChange={(e) => setNewTagInput(e.target.value)}
@@ -342,15 +365,17 @@ export function UploadDocument() {
                   disabled={loading}
                   placeholder={selectedTags.length === 0 ? "Type a tag and press Enter..." : "Add another tag..."}
                   className="flex-1 min-w-[150px] px-2 py-1 bg-transparent border-none focus:outline-none text-sm dark:text-white"
+                  aria-describedby="tags-help"
                 />
               </div>
             </div>
+            <span id="tags-help" className="sr-only">Type a tag name and press Enter to add it. Tags help categorize your document.</span>
 
             {/* Available Tags (Quick Select) */}
             {availableTags.length > 0 && (
               <div className="mt-3">
-                <p className="text-xs text-muted-foreground mb-2">Suggested tags (click to add):</p>
-                <div className="flex flex-wrap gap-2">
+                <p className="text-xs text-muted-foreground mb-2" id="suggested-tags-label">Suggested tags (click to add):</p>
+                <div className="flex flex-wrap gap-2" role="list" aria-labelledby="suggested-tags-label">
                   {availableTags
                     .filter(tag => !selectedTags.includes(tag.name))
                     .slice(0, 10)
@@ -360,7 +385,8 @@ export function UploadDocument() {
                         type="button"
                         onClick={() => handleAddTag(tag.name)}
                         disabled={loading}
-                        className="px-3 py-1 text-xs font-medium border border-gray-300 dark:border-gray-600 rounded-md hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors disabled:opacity-50"
+                        className="px-3 py-1 text-xs font-medium border border-input rounded-md hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors disabled:opacity-50"
+                        aria-label={`Add tag ${tag.name}`}
                       >
                         {tag.name}
                       </button>
@@ -371,7 +397,7 @@ export function UploadDocument() {
           </div>
 
           {/* Owner Info */}
-          <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+          <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-border" role="status" aria-label="Owner information">
             <p className="text-sm font-medium mb-1 text-foreground">Owner Address:</p>
             <p className="text-xs text-muted-foreground font-mono break-all">
               {identityKey || address || 'Not connected'}
@@ -384,31 +410,33 @@ export function UploadDocument() {
               type="submit"
               disabled={loading || !file || !title || !cost}
               className="w-full h-16 text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 bg-gradient-to-r from-primary to-primary/80 hover:from-primary hover:to-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label={loading ? "Uploading document, please wait" : "Submit form to publish document"}
+              aria-disabled={loading || !file || !title || !cost}
             >
               {loading ? (
                 <>
-                  <Loader2 className="mr-2 h-6 w-6 animate-spin" />
-                  Uploading Document...
+                  <Loader2 className="mr-2 h-6 w-6 animate-spin" aria-hidden="true" />
+                  <span>Uploading Document...</span>
                 </>
               ) : file ? (
                 <>
-                  <FileCheck className="mr-2 h-6 w-6" />
-                  Publish Document
+                  <FileCheck className="mr-2 h-6 w-6" aria-hidden="true" />
+                  <span>Publish Document</span>
                 </>
               ) : (
                 <>
-                  <Upload className="mr-2 h-6 w-6" />
-                  Upload Document
+                  <Upload className="mr-2 h-6 w-6" aria-hidden="true" />
+                  <span>Upload Document</span>
                 </>
               )}
             </Button>
             
             {/* Helper Text with Icons */}
-            <div className="mt-3 p-3 rounded-lg bg-muted/30">
+            <div className="mt-3 p-3 rounded-lg bg-muted/30" role="status" aria-live="polite">
               <p className="text-xs text-center text-muted-foreground">
-                {!file && !title && '📝 Please fill in all required fields to continue'}
-                {file && title && cost && !loading && '✅ Ready to publish! Click the button above to upload'}
-                {loading && '⏳ Please wait while we upload your document...'}
+                {!file && !title && 'Please fill in all required fields to continue'}
+                {file && title && cost && !loading && 'Ready to publish! Click the button above to upload'}
+                {loading && 'Please wait while we upload your document...'}
               </p>
             </div>
           </div>
@@ -419,11 +447,13 @@ export function UploadDocument() {
           <div
             className={`mt-4 p-4 rounded-lg ${
               messageType === 'success'
-                ? 'bg-green-100 text-green-800'
+                ? 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
                 : messageType === 'error'
-                ? 'bg-red-100 text-red-800'
-                : 'bg-blue-100 text-blue-800'
+                ? 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
+                : 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
             }`}
+            role={messageType === 'error' ? 'alert' : 'status'}
+            aria-live={messageType === 'error' ? 'assertive' : 'polite'}
           >
             {message}
           </div>

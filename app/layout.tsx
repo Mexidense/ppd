@@ -33,11 +33,16 @@ export default function RootLayout({
       >
         <ThemeProvider defaultTheme="dark">
           <WalletProvider>
+            {/* Skip to main content link for keyboard navigation */}
+            <a href="#main-content" className="skip-to-main">
+              Skip to main content
+            </a>
+            
             <div className="flex h-screen overflow-hidden">
               <Sidebar />
               <div className="flex flex-1 flex-col overflow-hidden">
                 <TopBar />
-                <main className="flex-1 overflow-y-auto">
+                <main id="main-content" className="flex-1 overflow-y-auto" tabIndex={-1}>
                   {children}
                 </main>
               </div>

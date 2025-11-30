@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDate, formatCurrency } from "@/lib/utils";
@@ -176,30 +175,34 @@ export function DocumentCard({
         showMessage(data.error || 'Purchase failed', 'error');
         setLoading(false);
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Purchase error:', error);
-      showMessage('Error: ' + error.message, 'error');
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      showMessage('Error: ' + errorMessage, 'error');
       setLoading(false);
     }
   };
 
   return (
-    <Card className={`group h-full transition-all duration-300 hover:border-primary hover:shadow-xl hover:-translate-y-1 flex flex-col shadow-md ${
-      isOwned ? 'border-green-500/50 bg-green-50 dark:bg-green-500/5' : 
-      isPurchased ? 'border-blue-500/50 bg-blue-50 dark:bg-blue-500/5' : 'bg-card'
-    }`}>
-      <CardContent className="p-6 flex-1">
+    <article 
+      className={`group h-full transition-all duration-300 hover:border-primary hover:shadow-xl hover:-translate-y-1 flex flex-col shadow-md rounded-lg border bg-card text-card-foreground ${
+        isOwned ? 'border-green-500/50 bg-green-50 dark:bg-green-500/5' : 
+        isPurchased ? 'border-blue-500/50 bg-blue-50 dark:bg-blue-500/5' : 'bg-card'
+      }`}
+      aria-label={`Document: ${title}`}
+    >
+      <div className="p-6 flex-1">
         <div className="space-y-4">
           {/* Status Badges */}
           {(isOwned || isPurchased) && (
-            <div className="flex gap-2 mb-2">
+            <div className="flex gap-2 mb-2" role="status" aria-live="polite">
               {isOwned && (
-                <Badge className="bg-green-600 hover:bg-green-700 text-white border-0">
+                <Badge className="bg-green-600 hover:bg-green-700 text-white border-0" aria-label="You own this document">
                   Owner
                 </Badge>
               )}
               {isPurchased && !isOwned && (
-                <Badge className="bg-blue-600 hover:bg-blue-700 text-white border-0">
+                <Badge className="bg-blue-600 hover:bg-blue-700 text-white border-0" aria-label="You purchased this document">
                   Purchased
                 </Badge>
               )}
@@ -207,9 +210,9 @@ export function DocumentCard({
           )}
 
           {/* Title */}
-          <h3 className="text-xl font-semibold leading-tight text-foreground group-hover:text-primary transition-colors">
+          <h2 className="text-xl font-semibold leading-tight text-foreground group-hover:text-primary transition-colors">
             {title}
-          </h3>
+          </h2>
 
           {/* Price and Tags */}
           <div className="flex items-center gap-3">
@@ -245,16 +248,17 @@ export function DocumentCard({
               onClick={handleViewDocument}
               disabled={loading}
               className="w-full gap-2 bg-green-600 text-white hover:bg-green-700"
+              aria-label={`View ${title}`}
             >
               {loading ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Opening...
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  <span>Opening...</span>
                 </>
               ) : (
                 <>
-                  <Eye className="h-4 w-4" />
-                  View Document
+                  <Eye className="h-4 w-4" aria-hidden="true" />
+                  <span>View Document</span>
                 </>
               )}
             </Button>
@@ -263,16 +267,18 @@ export function DocumentCard({
               onClick={handlePurchase}
               disabled={loading || !wallet}
               className="w-full gap-2 bg-primary text-primary-foreground hover:bg-primary/90"
+              aria-label={`Purchase ${title} for ${formatCurrency(cost)}`}
+              aria-disabled={loading || !wallet}
             >
               {loading ? (
                 <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Processing...
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  <span>Processing...</span>
                 </>
               ) : (
                 <>
-                  <ShoppingCart className="h-4 w-4" />
-                  Purchase Document
+                  <ShoppingCart className="h-4 w-4" aria-hidden="true" />
+                  <span>Purchase Document</span>
                 </>
               )}
             </Button>
@@ -280,23 +286,27 @@ export function DocumentCard({
 
           {/* Message Display */}
           {message && (
-            <div className={`text-xs p-2 rounded-md ${
-              messageType === 'success' ? 'bg-green-600/10 text-green-500' :
-              messageType === 'error' ? 'bg-red-600/10 text-red-500' :
-              'bg-blue-600/10 text-blue-400'
-            }`}>
+            <div 
+              className={`text-xs p-2 rounded-md ${
+                messageType === 'success' ? 'bg-green-600/10 text-green-500' :
+                messageType === 'error' ? 'bg-red-600/10 text-red-500' :
+                'bg-blue-600/10 text-blue-400'
+              }`}
+              role={messageType === 'error' ? 'alert' : 'status'}
+              aria-live={messageType === 'error' ? 'assertive' : 'polite'}
+            >
               {message}
             </div>
           )}
         </div>
-      </CardContent>
+      </div>
 
-      <CardFooter className="bg-muted/50 border-t border-border p-4 text-center">
+      <footer className="bg-muted/50 border-t border-border p-4 text-center">
         <p className="w-full text-xs font-medium text-muted-foreground">
-          Posted {formatDate(created_at)}
+          Posted <time dateTime={created_at}>{formatDate(created_at)}</time>
         </p>
-      </CardFooter>
-    </Card>
+      </footer>
+    </article>
   );
 }
 
