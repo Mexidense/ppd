@@ -18,11 +18,31 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'purchased'>('all');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState<string>('');
+
+  // Debounce search query - wait 500ms after user stops typing
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+    }, 300);
+
+    // Cleanup function to cancel the timeout if searchQuery changes
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchQuery]);
 
   useEffect(() => {
     async function fetchDocuments() {
       try {
-        const response = await fetch("/api/documents");
+        setLoading(true);
+        // Use search endpoint if there's a search query, otherwise fetch all documents
+        const endpoint = debouncedSearchQuery.trim() 
+          ? `/api/documents/search?title=${encodeURIComponent(debouncedSearchQuery.trim())}`
+          : "/api/documents";
+        
+        const response = await fetch(endpoint);
         if (!response.ok) {
           throw new Error("Failed to fetch documents");
         }
@@ -75,7 +95,7 @@ export default function HomePage() {
     }
 
     fetchDocuments();
-  }, [isConnected, identityKey, address]);
+  }, [isConnected, identityKey, address, debouncedSearchQuery]);
   
   const filteredDocuments = documents.filter((doc) => {
     if (filter === 'purchased') {
@@ -95,6 +115,68 @@ export default function HomePage() {
             Browse, purchase, and manage your document collection
           </p>
         </header>
+
+        {/* Search Bar */}
+        <div className="mb-6 lg:mb-8">
+          <div className="relative max-w-2xl">
+            <div className="absolute inset-y-0 left-0 flex items-center pl-3 sm:pl-4 pointer-events-none">
+              <svg
+                className="w-4 h-4 sm:w-5 sm:h-5 text-muted-foreground"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 20 20"
+              >
+                <path
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
+                />
+              </svg>
+            </div>
+            <input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="block w-full p-3 sm:p-4 pl-10 sm:pl-12 pr-10 sm:pr-12 text-sm border-2 border-border rounded-lg bg-background focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none"
+              placeholder="Search documents by title..."
+              aria-label="Search documents"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute inset-y-0 right-0 flex items-center pr-3 sm:pr-4 text-muted-foreground hover:text-foreground transition-colors"
+                aria-label="Clear search"
+              >
+                <svg
+                  className="w-4 h-4 sm:w-5 sm:h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            )}
+          </div>
+          {searchQuery && (
+            <p className="text-xs sm:text-sm text-muted-foreground mt-2">
+              {searchQuery !== debouncedSearchQuery 
+                ? 'Typing...' 
+                : loading 
+                  ? 'Searching...' 
+                  : `Found ${filteredDocuments.length} result${filteredDocuments.length !== 1 ? 's' : ''}`}
+            </p>
+          )}
+        </div>
 
         {/* Tabs Navigation */}
         <nav className="mb-6 lg:mb-8" aria-label="Document filters" role="tablist">
