@@ -175,7 +175,7 @@ export default function PublishedPage() {
           </div>
           <Button 
             size="lg"
-            className="gap-2 bg-gradient-to-r from-primary to-primary/80 shadow-lg hover:shadow-xl transition-all w-full sm:w-auto"
+            className="gap-2 bg-green-600 hover:bg-green-700 text-white shadow-lg hover:shadow-xl transition-all w-full sm:w-auto"
             onClick={() => router.push('/upload')}
             disabled={!isConnected}
           >
@@ -239,7 +239,7 @@ export default function PublishedPage() {
                 Upload your first document to start selling
               </p>
               <Button 
-                className="mt-4 gap-2"
+                className="mt-4 gap-2 bg-green-600 hover:bg-green-700 text-white"
                 onClick={() => router.push('/upload')}
                 disabled={!isConnected}
               >
@@ -330,8 +330,7 @@ export default function PublishedPage() {
                         <div className="flex items-center justify-end gap-1 sm:gap-2">
                           <Button
                             size="sm"
-                            variant="outline"
-                            className="gap-1 sm:gap-2 h-8 sm:h-9 px-2 sm:px-3"
+                            className="gap-1 sm:gap-2 h-8 sm:h-9 px-2 sm:px-3 bg-blue-500 hover:bg-blue-600 text-white border-0"
                             onClick={() => router.push(`/view/${doc.id}`)}
                             disabled={deleting === doc.id}
                             aria-label={`View ${doc.title}`}
@@ -342,8 +341,11 @@ export default function PublishedPage() {
 
                           <Button
                             size="sm"
-                            variant={copiedLink === doc.id ? "default" : "outline"}
-                            className="gap-1 sm:gap-2 h-8 sm:h-9 px-2 sm:px-3"
+                            className={`gap-1 sm:gap-2 h-8 sm:h-9 px-2 sm:px-3 ${
+                              copiedLink === doc.id 
+                                ? 'bg-green-500 hover:bg-green-600' 
+                                : 'bg-purple-500 hover:bg-purple-600'
+                            } text-white border-0`}
                             onClick={() => handleCopyPaymentLink(doc.id)}
                             disabled={generatingLink === doc.id || deleting === doc.id}
                             aria-label="Copy payment link"
@@ -369,8 +371,7 @@ export default function PublishedPage() {
 
                           <Button
                             size="sm"
-                            variant="outline"
-                            className="gap-1 sm:gap-2 h-8 sm:h-9 px-2 sm:px-3"
+                            className="gap-1 sm:gap-2 h-8 sm:h-9 px-2 sm:px-3 bg-yellow-500 hover:bg-yellow-600 text-white border-0"
                             onClick={() => handleShowQrCode(doc.id, doc.title)}
                             disabled={generatingLink === doc.id || deleting === doc.id}
                             aria-label="Show QR code"
@@ -382,8 +383,7 @@ export default function PublishedPage() {
                           
                           <Button
                             size="sm"
-                            variant="destructive"
-                            className="gap-1 sm:gap-2 h-8 sm:h-9 px-2 sm:px-3"
+                            className="gap-1 sm:gap-2 h-8 sm:h-9 px-2 sm:px-3 bg-red-600 hover:bg-red-700 text-white border-0"
                             onClick={() => handleDelete(doc.id, doc.title)}
                             disabled={deleting === doc.id}
                             aria-label={`Delete ${doc.title}`}

@@ -409,7 +409,7 @@ export function UploadDocument() {
             <Button
               type="submit"
               disabled={loading || !file || !title || !cost}
-              className="w-full h-14 sm:h-16 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 bg-gradient-to-r from-primary to-primary/80 hover:from-primary hover:to-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-14 sm:h-16 text-base sm:text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-200 bg-green-600 hover:bg-green-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label={loading ? "Uploading document, please wait" : "Submit form to publish document"}
               aria-disabled={loading || !file || !title || !cost}
             >
