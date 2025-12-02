@@ -4,6 +4,11 @@ A decentralized pay-per-document marketplace built with Next.js, Supabase, and B
 
 **Live Demo:** [https://ppd-three.vercel.app](https://ppd-three.vercel.app)
 
+
+## Winners 🎖️
+
+![winners](/MERGE2025_PICS/MERGE_303.JPG)
+
 ---
 
 ## 🌟 Features
